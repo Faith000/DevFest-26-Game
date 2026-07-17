@@ -42,6 +42,7 @@ interface Obstacle {
   minGap: number;
   special: boolean;
   slowMover: boolean;
+  hornPlayed: boolean;
   data?: Record<string, number | boolean>;
   onUpdate?: (o: Obstacle, dt: number, roadSpeed: number) => void;
 }
@@ -438,6 +439,7 @@ export class RunScene extends Phaser.Scene {
       minGap: Infinity,
       special: false,
       slowMover: false,
+      hornPlayed: false,
       ...opts,
     };
     this.obstacles.push(o);
@@ -986,6 +988,10 @@ export class RunScene extends Phaser.Scene {
           Math.abs(o.node.x - this.player.x) - (o.halfW + this.playerHalfW),
         );
         o.minGap = Math.min(o.minGap, gap);
+        if (o.kind === "danfoLaneChanger" && !o.hornPlayed && gap < 70) {
+          o.hornPlayed = true;
+          gameAudio.playConductorCall();
+        }
       }
 
       if (!o.passed && dy > 80) {

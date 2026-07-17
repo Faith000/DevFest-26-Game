@@ -7,8 +7,10 @@ starts.
 Built with **Next.js 16 + TypeScript + Phaser 3**, with a self-contained
 SQLite-backed leaderboard API. All artwork is generated procedurally in code
 (flat, ink-outlined, pastel style derived from [devfestlagos.com](https://devfestlagos.com/))
-and all audio is synthesized with the Web Audio API — no external assets, no
-licensing baggage.
+and almost all audio is synthesized with the Web Audio API — no external
+assets, no licensing baggage. The one exception is a set of recorded danfo
+conductor calls (`public/sfx/conductor-*.m4a`) played when passing close to a
+Lagos Danfo — see [Sound](#sound) below.
 
 ## Quick start
 
@@ -117,6 +119,15 @@ total = round((distance·2 + collectibles + nearMisses·100·vehicleBonus
 - Failed submissions are stored locally as *pending* and retried when the
   connection returns; duplicates are impossible thanks to `sessionId`
   idempotency.
+
+## Sound
+
+`src/game/systems/audio.ts` synthesizes music, engine drone, rain, and all
+SFX live via the Web Audio API. The one recorded exception: three danfo
+conductor call clips in `public/sfx/`, loaded and decoded on `unlock()`. When
+the player passes within 70px of a `danfoLaneChanger` obstacle, one clip is
+picked at random and played once per obstacle (`RunScene.updateObstacles`,
+`hornPlayed` flag on the obstacle).
 
 ## Architecture
 
