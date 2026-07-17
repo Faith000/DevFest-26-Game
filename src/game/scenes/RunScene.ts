@@ -231,6 +231,7 @@ export class RunScene extends Phaser.Scene {
     gameAudio.startEngine();
     this.scene.launch("hud", this.cfg);
     this.time.delayedCall(150, () => gameAudio.play("go"));
+    this.time.delayedCall(5000, () => gameAudio.playConductorCall());
 
     // pause when the tab loses focus
     this.game.events.on(Phaser.Core.Events.BLUR, this.onBlur, this);
