@@ -204,10 +204,10 @@ export function PlayFlow() {
         gameAudio.play("personalBest");
         track("personal_best_achieved", { score: p.breakdown.total });
       }
-      // returning submitters go straight to the board; first-timers get one
-      // explicit "Submit Score" tap (which also needs no sign-in)
-      const prof = profileRef.current;
-      if (prof?.playerId && prof.token) void doSubmit(p.stats);
+      // every run is recorded automatically — no sign-in, no button. The
+      // first submission silently registers a device identity from the
+      // driver name; the leaderboard keeps only each player's best.
+      if (profileRef.current) void doSubmit(p.stats);
     },
     [recordBest, doSubmit],
   );

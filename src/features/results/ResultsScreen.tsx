@@ -122,16 +122,11 @@ export function ResultsScreen({
           <StatCell label="VEHICLE" value={VEHICLES[stats.vehicleId].name.split(" ")[1] ?? stats.vehicleId} />
         </div>
 
-        {/* submission area */}
+        {/* submission area — scores record automatically, no button */}
         <div className="mt-5">
-          {submission.status === "idle" && (
-            <button onClick={onSubmit} className="df-btn df-btn-secondary w-full">
-              Submit Score to Leaderboard
-            </button>
-          )}
-          {submission.status === "submitting" && (
-            <div className="df-border w-full bg-white px-4 py-3 text-center text-sm font-semibold">
-              Submitting your run…
+          {(submission.status === "idle" || submission.status === "submitting") && (
+            <div className="df-border w-full bg-white px-4 py-3 text-center text-sm font-semibold" role="status">
+              Recording your score…
             </div>
           )}
           {(submission.status === "pending" || submission.status === "error") && (
