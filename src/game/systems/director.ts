@@ -90,12 +90,12 @@ export class Director {
 
     if (!nearGoal && scrolledPx >= this.nextPowerupAt) {
       out.push({ type: "powerup", lane: this.safeLane, kind: this.nextPowerup() });
-      this.nextPowerupAt = scrolledPx + rnd(3600, 5400);
+      this.nextPowerupAt = scrolledPx + rnd(3000, 4500);
     }
 
     if (!nearGoal && scrolledPx >= this.nextBadgeAt) {
       out.push({ type: "badge", lane: this.safeLane });
-      this.nextBadgeAt = scrolledPx + rnd(8000, 12000);
+      this.nextBadgeAt = scrolledPx + rnd(7000, 10000);
     }
 
     return out;
@@ -124,14 +124,14 @@ export class Director {
     report: DirectorReport,
   ): SpawnCommand[] {
     const d = this.difficulty(elapsed);
-    const spacing = (500 - 90 * d) * (raining ? 1.15 : 1);
+    const spacing = (520 - 60 * d) * (raining ? 1.15 : 1);
     const out: SpawnCommand[] = [];
 
     // Maybe shift the safe lane (never into a slow mover's lane, never
     // while a set-piece is on screen).
     const oldSafe = this.safeLane;
     let transition = false;
-    if (!report.specialAlive && Math.random() < 0.32 + 0.3 * d) {
+    if (!report.specialAlive && Math.random() < 0.26 + 0.22 * d) {
       const candidates = [this.safeLane - 1, this.safeLane + 1].filter(
         (l) => l >= 0 && l < LANE_COUNT && !report.slowMoverLanes.has(l),
       );
@@ -157,9 +157,9 @@ export class Director {
     } else {
       const truckBusy = report.slowMoverLanes.size > 0;
       const weights: Array<[string, number]> = [
-        ["empty", Math.max(0.15, 1.1 - 1.4 * d)],
+        ["empty", Math.max(0.35, 1.2 - 1.2 * d)],
         ["single", 3],
-        ["double", d > 0.3 ? 1.8 * d : 0],
+        ["double", d > 0.45 ? 1.1 * d : 0],
         ["truck", truckBusy ? 0 : 0.9],
         ["danfo", elapsed > 10 ? 1.1 : 0],
         ["okada", elapsed > 18 && !report.specialAlive ? 0.75 : 0],

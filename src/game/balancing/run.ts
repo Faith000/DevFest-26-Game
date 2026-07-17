@@ -5,18 +5,18 @@ export const RUN = {
   /** keynote countdown in seconds */
   keynoteSeconds: 90,
   /** metres to the DevFest gate */
-  goalDistance: 2000,
+  goalDistance: 1900,
   /** world px per metre (speeds below are px/s) */
   pxPerMetre: 20,
 
   /** base road speed at the start of a run, px/s */
   baseSpeed: 300,
   /** top road speed reached by the difficulty curve, px/s */
-  maxSpeed: 660,
+  maxSpeed: 600,
   /** seconds of gentle "teach the rhythm" phase */
   warmupSeconds: 15,
   /** seconds over which speed ramps from base to max (after warmup) */
-  rampSeconds: 55,
+  rampSeconds: 65,
 
   /** seconds granted by an event badge pickup */
   badgeTimeBonus: 5,
@@ -24,11 +24,13 @@ export const RUN = {
   /** integrity pips */
   maxIntegrity: 3,
   /** seconds of invulnerability after a hit */
-  hitInvulnSeconds: 1.4,
+  hitInvulnSeconds: 2.2,
   /** speed multiplier immediately after a hit */
   hitSlowFactor: 0.45,
   /** seconds to recover speed after a hit */
-  hitSlowRecovery: 1.2,
+  hitSlowRecovery: 1.5,
+  /** forgiveness margin shaved off collision boxes, px per side */
+  collisionGrace: 6,
 
   /** route visual beats as fractions of goal distance */
   beats: {

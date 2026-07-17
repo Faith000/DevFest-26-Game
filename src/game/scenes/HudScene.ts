@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 import type { PowerUpKind } from "@/types/game";
 import { palette } from "@/config/theme";
 import { GAME_HEIGHT, GAME_WIDTH } from "../constants";
+import { RUN } from "../balancing/run";
 import { gameAudio } from "../systems/audio";
 import type { RunSceneConfig } from "../types";
 import type { RunScene } from "./RunScene";
@@ -174,14 +175,14 @@ export class HudScene extends Phaser.Scene {
         padding: { x: 3, y: 1 },
       })
       .setAlpha(0.85);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < RUN.maxIntegrity; i++) {
       const pip = this.add
         .rectangle(20 + i * (26 * ui), pipY, 20 * ui, 16 * ui, 0x34a853)
         .setStrokeStyle(2, 0x1e1e1e);
       this.pips.push(pip);
     }
     this.shieldIcon = this.add
-      .circle(20 + 3 * 26 * ui + 4, pipY, 10 * ui, 0x4285f4, 0.9)
+      .circle(20 + RUN.maxIntegrity * 26 * ui + 4, pipY, 10 * ui, 0x4285f4, 0.9)
       .setStrokeStyle(2, 0x1e1e1e)
       .setVisible(this.runScene.getHudSnapshot().shielded);
 

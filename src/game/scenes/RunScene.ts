@@ -537,11 +537,11 @@ export class RunScene extends Phaser.Scene {
       o.data = { toLane, phase: 0 };
       o.onUpdate = (obs) => {
         const y = obs.node.y;
-        if (obs.data!.phase === 0 && y > 40) {
+        if (obs.data!.phase === 0 && y > 10) {
           obs.data!.phase = 1;
           const dir = (obs.data!.toLane as number) > obs.lane ? 1 : -1;
           indicator.setPosition(30 * dir, 40).setVisible(true);
-          this.tweens.add({ targets: indicator, alpha: 0.15, duration: 160, yoyo: true, repeat: 6 });
+          this.tweens.add({ targets: indicator, alpha: 0.15, duration: 160, yoyo: true, repeat: 9 });
         } else if (obs.data!.phase === 1 && y > 170) {
           obs.data!.phase = 2;
           indicator.setVisible(false);
@@ -577,7 +577,7 @@ export class RunScene extends Phaser.Scene {
     const xB = laneX(laneB);
     o.data = { t: 0 };
     o.onUpdate = (obs, dt) => {
-      obs.data!.t = (obs.data!.t as number) + dt * 3.6;
+      obs.data!.t = (obs.data!.t as number) + dt * 2.9;
       const t = obs.data!.t as number;
       const k = (Math.sin(t) + 1) / 2;
       obs.node.x = xA + (xB - xA) * k;
@@ -599,7 +599,7 @@ export class RunScene extends Phaser.Scene {
     o.onUpdate = (obs, dt) => {
       obs.data!.wob = (obs.data!.wob as number) + dt * 14;
       // waits a beat at the roadside, then scuttles across
-      if ((obs.data!.entered as number) < 0.7) {
+      if ((obs.data!.entered as number) < 0.9) {
         obs.data!.entered = (obs.data!.entered as number) + dt;
         return;
       }
@@ -1075,11 +1075,13 @@ export class RunScene extends Phaser.Scene {
 
     if (this.invuln > 0) return;
 
+    // a small grace margin so grazes read as near misses, not crashes
+    const grace = RUN.collisionGrace;
     for (const o of this.obstacles) {
       if (o.hit || o.passed) continue;
       if (
-        Math.abs(o.node.x - px) < o.halfW + this.playerHalfW &&
-        Math.abs(o.node.y - py) < o.halfH + this.playerHalfH
+        Math.abs(o.node.x - px) < o.halfW + this.playerHalfW - grace &&
+        Math.abs(o.node.y - py) < o.halfH + this.playerHalfH - grace
       ) {
         this.onCollision(o);
         break;
