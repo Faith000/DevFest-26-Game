@@ -1,11 +1,18 @@
 /**
- * All audio is synthesized with the Web Audio API — original, licence-free.
+ * Most audio is synthesized with the Web Audio API — original, licence-free.
  * A tiny sequencer drives an upbeat two-bar music loop; SFX are short
- * envelope-shaped oscillator/noise bursts.
+ * envelope-shaped oscillator/noise bursts. The danfo conductor calls are the
+ * one exception: short recorded clips played back through the same sfx bus.
  *
  * The module is a singleton usable from both Phaser and React. Nothing
  * plays before `unlock()` is called from a user gesture, per autoplay rules.
  */
+
+const CONDUCTOR_CLIP_URLS = [
+  "/sfx/conductor-1.m4a",
+  "/sfx/conductor-2.m4a",
+  "/sfx/conductor-3.m4a",
+];
 
 type SfxName =
   | "pickup"
@@ -37,6 +44,8 @@ class GameAudio {
   private rainNoise: AudioBufferSourceNode | null = null;
   private rainGain: GainNode | null = null;
   private noiseBuffer: AudioBuffer | null = null;
+  private conductorBuffers: AudioBuffer[] = [];
+  private conductorLoading = false;
 
   private musicOn = true;
   private sfxOn = true;
@@ -69,8 +78,46 @@ class GameAudio {
       this.sfxBus.gain.value = this.sfxOn ? 0.85 : 0;
       this.sfxBus.connect(this.master);
       this.noiseBuffer = this.makeNoise();
+      void this.loadConductorClips();
     }
     if (this.ctx.state === "suspended") void this.ctx.resume();
+  }
+
+  private async loadConductorClips(): Promise<void> {
+    if (this.conductorLoading || this.conductorBuffers.length) return;
+    this.conductorLoading = true;
+    const ctx = this.ctx;
+    if (!ctx) return;
+    try {
+      const buffers = await Promise.all(
+        CONDUCTOR_CLIP_URLS.map(async (url) => {
+          const res = await fetch(url);
+          const data = await res.arrayBuffer();
+          return ctx.decodeAudioData(data);
+        }),
+      );
+      this.conductorBuffers = buffers;
+    } catch {
+      // Recorded clips are a bonus flourish — silently fall back to nothing.
+    } finally {
+      this.conductorLoading = false;
+    }
+  }
+
+  /** Plays a random recorded danfo conductor call, if the clips have loaded. */
+  playConductorCall(): void {
+    const ctx = this.ctx;
+    const bus = this.sfxBus;
+    if (!ctx || !bus || !this.conductorBuffers.length) return;
+    const buffer =
+      this.conductorBuffers[Math.floor(Math.random() * this.conductorBuffers.length)];
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.6;
+    src.connect(gain);
+    gain.connect(bus);
+    src.start();
   }
 
   suspend(): void {
