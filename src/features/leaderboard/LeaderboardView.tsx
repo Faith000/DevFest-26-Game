@@ -98,15 +98,13 @@ export function LeaderboardView() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [loadingMore, setLoadingMore] = useState(false);
-  const [query, setQuery] = useState("");
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestSeq = useRef(0);
 
   const load = useCallback(
-    (s: Scope, q: string, playerId?: string) => {
+    (s: Scope, playerId?: string) => {
       const seq = ++requestSeq.current;
       setState("loading");
-      fetchLeaderboard({ scope: s, limit: 20, q: q || undefined, playerId })
+      fetchLeaderboard({ scope: s, limit: 20, playerId })
         .then((r) => {
           if (seq !== requestSeq.current) return;
           setData(r);
@@ -129,18 +127,12 @@ export function LeaderboardView() {
   useEffect(() => {
     let cancelled = false;
     queueMicrotask(() => {
-      if (!cancelled) load(scope, "", playerId);
+      if (!cancelled) load(scope, playerId);
     });
     return () => {
       cancelled = true;
     };
   }, [scope, playerId, load]);
-
-  const onSearch = (value: string) => {
-    setQuery(value);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => load(scope, value, profile?.playerId), 350);
-  };
 
   const loadMore = async () => {
     if (!data?.nextCursor) return;
@@ -163,8 +155,8 @@ export function LeaderboardView() {
 
   const me = data?.me ?? null;
   const meVisible = me !== null && entries.some((e) => e.playerId === me.playerId);
-  const podium = !query && entries.length > 0 ? entries.slice(0, 3) : [];
-  const listEntries = query ? entries : entries.slice(3);
+  const podium = entries.length > 0 ? entries.slice(0, 3) : [];
+  const listEntries = entries.slice(3);
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 pb-16">
@@ -191,7 +183,6 @@ export function LeaderboardView() {
             onClick={() => {
               setScope(s);
               setEntries([]);
-              setQuery("");
             }}
             className={`df-btn px-5 py-2.5 text-sm ${
               scope === s ? "df-btn-primary" : "df-btn-secondary"
@@ -200,19 +191,6 @@ export function LeaderboardView() {
             {label}
           </button>
         ))}
-        <div className="ml-auto max-[420px]:ml-0 max-[420px]:w-full">
-          <label htmlFor="lb-search" className="sr-only">
-            Search drivers
-          </label>
-          <input
-            id="lb-search"
-            type="search"
-            value={query}
-            onChange={(e) => onSearch(e.target.value)}
-            placeholder="Search drivers…"
-            className="df-border w-36 bg-white px-3 py-2.5 text-sm max-[420px]:w-full sm:w-48"
-          />
-        </div>
       </div>
 
       {/* personal rank card */}
@@ -249,7 +227,7 @@ export function LeaderboardView() {
               Nothing lost — give it another go.
             </p>
             <button
-              onClick={() => load(scope, query, profile?.playerId)}
+              onClick={() => load(scope, profile?.playerId)}
               className="df-btn df-btn-primary mt-4"
             >
               Retry
@@ -263,20 +241,14 @@ export function LeaderboardView() {
               🏁
             </p>
             <p className="mt-2 font-[family-name:var(--font-grotesk)] text-lg font-bold">
-              {query
-                ? `No drivers matching “${query}”.`
-                : "Nobody has beaten the traffic yet."}
+              Nobody has beaten the traffic yet.
             </p>
-            {!query && (
-              <>
-                <p className="mt-1 text-sm text-ink/70">
-                  The podium is wide open. Set the first time.
-                </p>
-                <Link href="/play" className="df-btn df-btn-primary mt-4">
-                  Start Driving
-                </Link>
-              </>
-            )}
+            <p className="mt-1 text-sm text-ink/70">
+              The podium is wide open. Set the first time.
+            </p>
+            <Link href="/play" className="df-btn df-btn-primary mt-4">
+              Start Driving
+            </Link>
           </div>
         )}
 

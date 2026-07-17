@@ -131,6 +131,16 @@ body {
   border-width: 3px;
 }
 
+/* hero preview: reveal the Start Driving CTA on hover / keyboard focus */
+.preview-cta {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.preview-card:hover .preview-cta,
+.preview-card:focus-visible .preview-cta {
+  opacity: 1;
+}
+
 /* reduced motion: kill decorative animation globally */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -1,13 +1,16 @@
+import Link from "next/link";
+
 /**
- * Pure-CSS animated preview of the game for the hero. Decorative only —
- * animations are globally disabled under reduced-motion preferences.
+ * Pure-CSS animated preview of the game for the hero. Hovering (or focusing)
+ * it reveals a Start Driving CTA, and the whole card links into the game.
+ * Animations are globally disabled under reduced-motion preferences.
  */
 export function GamePreview() {
   return (
-    <div
-      className="df-card relative mx-auto h-[420px] w-full max-w-[300px] overflow-hidden"
-      role="img"
-      aria-label="Animated preview: a DevFest shuttle dodging danfos and potholes on a three-lane Lagos road"
+    <Link
+      href="/play"
+      aria-label="Start driving — play Escape the Lagos Tech Traffic"
+      className="df-card preview-card relative mx-auto block h-[420px] w-full max-w-[300px] cursor-pointer overflow-hidden"
     >
       {/* roadside */}
       <div className="absolute inset-y-0 left-0 w-8 bg-[#d9cfae]" />
@@ -86,6 +89,13 @@ export function GamePreview() {
           +100 NEAR MISS
         </p>
       </div>
-    </div>
+
+      {/* hover / focus CTA overlay (see .preview-cta in globals.css) */}
+      <div className="preview-cta pointer-events-none absolute inset-0 flex items-center justify-center bg-ink/45 backdrop-blur-[1px]">
+        <span className="df-btn df-btn-primary px-6 py-3.5 text-lg">
+          Start Driving →
+        </span>
+      </div>
+    </Link>
   );
 }
