@@ -7,7 +7,6 @@ export interface LeaderboardEntry {
   playerId: string;
   displayName: string;
   avatar: string;
-  preferredTrack: string;
   vehicleId: VehicleId;
   score: number;
   remainingTime: number;

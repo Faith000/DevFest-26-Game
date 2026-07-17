@@ -2,33 +2,26 @@
 
 import { useState } from "react";
 import { AVATARS } from "@/config/avatars";
-import { DEVFEST_TRACKS } from "@/config/tracks";
 import type { PlayerProfile } from "@/features/player/useProfile";
 
 interface Props {
   initial: PlayerProfile | null;
-  /** resolves to an error message, or null when the profile was saved */
-  onDone: (profile: PlayerProfile) => Promise<string | null>;
+  onDone: (profile: PlayerProfile) => void;
 }
 
 export function PlayerSetup({ initial, onDone }: Props) {
   const [name, setName] = useState(initial?.displayName ?? "");
-  const [track, setTrack] = useState(initial?.track ?? DEVFEST_TRACKS[0]);
   const [avatar, setAvatar] = useState(initial?.avatar ?? AVATARS[0]);
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = name.trim();
     if (trimmed.length < 2 || trimmed.length > 20) {
       setError("Pick a name between 2 and 20 characters.");
       return;
     }
-    setBusy(true);
-    const err = await onDone({ ...initial, displayName: trimmed, track, avatar });
-    setBusy(false);
-    if (err) setError(err);
+    onDone({ ...initial, displayName: trimmed, avatar });
   };
 
   return (
@@ -38,8 +31,7 @@ export function PlayerSetup({ initial, onDone }: Props) {
         Who&apos;s driving today?
       </h1>
       <p className="mt-2 text-sm text-ink/70">
-        You can play as a guest. Sign in only when you want to save your score
-        to the public leaderboard.
+        No account, no sign-in. Pick a name, pick a face, beat the traffic.
       </p>
 
       <form onSubmit={submit} className="df-card mt-6 space-y-5 p-5">
@@ -70,24 +62,6 @@ export function PlayerSetup({ initial, onDone }: Props) {
           )}
         </div>
 
-        <div>
-          <label htmlFor="track" className="df-label block">
-            Preferred DevFest track
-          </label>
-          <select
-            id="track"
-            value={track}
-            onChange={(e) => setTrack(e.target.value)}
-            className="df-border mt-2 w-full bg-paper px-3 py-2.5 text-sm font-semibold"
-          >
-            {DEVFEST_TRACKS.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <fieldset>
           <legend className="df-label">Avatar</legend>
           <div className="mt-2 grid grid-cols-6 gap-2">
@@ -108,12 +82,8 @@ export function PlayerSetup({ initial, onDone }: Props) {
           </div>
         </fieldset>
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="df-btn df-btn-primary w-full text-base disabled:opacity-60"
-        >
-          {busy ? "Saving…" : "Choose Your Ride →"}
+        <button type="submit" className="df-btn df-btn-primary w-full text-base">
+          Choose Your Ride →
         </button>
       </form>
     </div>

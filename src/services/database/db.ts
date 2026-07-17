@@ -27,12 +27,12 @@ export function getDb(): Database.Database {
 }
 
 function migrate(d: Database.Database): void {
+  migratePlayersV2(d);
   d.exec(`
     CREATE TABLE IF NOT EXISTS players (
       id TEXT PRIMARY KEY,
       display_name TEXT NOT NULL,
-      display_name_lower TEXT NOT NULL UNIQUE,
-      track TEXT NOT NULL,
+      display_name_lower TEXT NOT NULL,
       avatar TEXT NOT NULL,
       token_hash TEXT NOT NULL,
       created_at TEXT NOT NULL
@@ -97,4 +97,43 @@ function migrate(d: Database.Database): void {
       created_at TEXT NOT NULL
     );
   `);
+}
+
+/**
+ * v2: display names are no longer unique (identity is the device token, so
+ * play needs no sign-in) and the preferred-track column is gone. Rebuilds
+ * the players table when a v1 shape is detected.
+ */
+function migratePlayersV2(d: Database.Database): void {
+  const table = d
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'players'")
+    .get() as { name: string } | undefined;
+  if (!table) return;
+
+  const cols = d.prepare("PRAGMA table_info(players)").all() as Array<{ name: string }>;
+  const hasTrack = cols.some((c) => c.name === "track");
+  const uniqueIdx = (
+    d.prepare("PRAGMA index_list('players')").all() as Array<{ unique: number }>
+  ).some((i) => i.unique === 1);
+  if (!hasTrack && !uniqueIdx) return;
+
+  d.pragma("foreign_keys = OFF");
+  d.exec(`
+    BEGIN;
+    CREATE TABLE players_v2 (
+      id TEXT PRIMARY KEY,
+      display_name TEXT NOT NULL,
+      display_name_lower TEXT NOT NULL,
+      avatar TEXT NOT NULL,
+      token_hash TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    INSERT INTO players_v2
+      SELECT id, display_name, display_name_lower, avatar, token_hash, created_at
+      FROM players;
+    DROP TABLE players;
+    ALTER TABLE players_v2 RENAME TO players;
+    COMMIT;
+  `);
+  d.pragma("foreign_keys = ON");
 }

@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import type { RunStats } from "@/types/game";
-import { authenticate } from "@/services/database/players";
+import {
+  authenticate,
+  isValidDisplayName,
+  syncProfile,
+} from "@/services/database/players";
+import { isValidAvatar } from "@/config/avatars";
 import { clientIp, rateLimit } from "@/services/database/ratelimit";
 import { validateRun } from "@/services/database/validation";
 import {
@@ -22,7 +27,12 @@ export async function POST(req: Request) {
   const authHeader = req.headers.get("authorization") ?? "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
 
-  let body: { playerId?: unknown; run?: unknown; claimedScore?: unknown };
+  let body: {
+    playerId?: unknown;
+    run?: unknown;
+    claimedScore?: unknown;
+    profile?: { displayName?: unknown; avatar?: unknown };
+  };
   try {
     body = await req.json();
   } catch {
@@ -50,6 +60,17 @@ export async function POST(req: Request) {
       { error: "Unusual submission volume — try again later.", code: "rate_limited" },
       { status: 429 },
     );
+  }
+
+  // keep the public profile in step with the name entered before driving
+  const nextName =
+    typeof body.profile?.displayName === "string" ? body.profile.displayName.trim() : "";
+  const nextAvatar =
+    typeof body.profile?.avatar === "string" && isValidAvatar(body.profile.avatar)
+      ? body.profile.avatar
+      : player.avatar;
+  if (isValidDisplayName(nextName) && (nextName !== player.display_name || nextAvatar !== player.avatar)) {
+    syncProfile(player.id, nextName, nextAvatar);
   }
 
   const run = body.run as RunStats | undefined;

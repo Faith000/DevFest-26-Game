@@ -77,9 +77,6 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
           {entry.displayName}
           {isMe && <span className="ml-1.5 text-xs text-core-red">← you</span>}
         </span>
-        <span className="df-label block text-[9px] text-ink/50">
-          {entry.preferredTrack}
-        </span>
       </span>
       <span className="df-chip hidden bg-paper normal-case tracking-normal sm:inline-flex">
         {VEHICLE_BADGE[entry.vehicleId] ?? entry.vehicleId}

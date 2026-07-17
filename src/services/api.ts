@@ -37,9 +37,9 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
+/** Silent, one-time device registration — no sign-in flow anywhere. */
 export function registerPlayer(input: {
   displayName: string;
-  track: string;
   avatar: string;
 }): Promise<RegisterResponse> {
   return request<RegisterResponse>("/api/players", {
@@ -48,23 +48,10 @@ export function registerPlayer(input: {
   });
 }
 
-export function renamePlayer(
-  displayName: string,
-  auth: { playerId: string; token: string },
-): Promise<{ playerId: string; displayName: string }> {
-  return request("/api/players", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${auth.token}`,
-    },
-    body: JSON.stringify({ playerId: auth.playerId, displayName }),
-  });
-}
-
 export function submitScore(
   run: RunStats,
   auth: { playerId: string; token: string },
+  profile: { displayName: string; avatar: string },
 ): Promise<SubmitScoreResponse> {
   return request<SubmitScoreResponse>("/api/scores", {
     method: "POST",
@@ -72,11 +59,13 @@ export function submitScore(
       "Content-Type": "application/json",
       Authorization: `Bearer ${auth.token}`,
     },
-    // the claimed score lets the server detect tampered payloads/version drift
+    // the claimed score lets the server detect tampered payloads/version
+    // drift; the profile keeps the public name/avatar in sync
     body: JSON.stringify({
       playerId: auth.playerId,
       run,
       claimedScore: computeScore(run).total,
+      profile,
     }),
   });
 }

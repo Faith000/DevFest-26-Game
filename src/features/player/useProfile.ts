@@ -6,9 +6,8 @@ import { STORAGE_KEYS, loadJson, saveJson } from "@/utils/storage";
 
 export interface PlayerProfile {
   displayName: string;
-  track: string;
   avatar: string;
-  /** set once the player has claimed a leaderboard account */
+  /** created silently on the first score submission — never a sign-in */
   playerId?: string;
   token?: string;
 }

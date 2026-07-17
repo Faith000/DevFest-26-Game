@@ -93,10 +93,15 @@ total = round((distance·2 + collectibles + nearMisses·100·vehicleBonus
 
 ## Leaderboard & score integrity
 
-- Anyone can play as a guest; personal bests live in `localStorage`.
-- Submitting to the public board requires claiming a **driver handle**: the
-  server issues a random token (stored hashed, verified with a
-  constant-time compare). No email, no personal data.
+- No sign-in anywhere. Anyone can play immediately; personal bests live in
+  `localStorage`.
+- Submitting a score is equally frictionless: the first submission silently
+  registers a **device identity** using the driver name from the setup
+  screen — the server issues a random token (stored hashed, verified with a
+  constant-time compare) that stays on the device. No email, no account, no
+  dialog. Display names don't need to be unique, so there is never a
+  "name taken" roadblock; each submission also re-syncs the public
+  name/avatar to whatever the player last entered.
 - `POST /api/scores` never trusts the submitted score. The server:
   - recomputes the score from run components with the shared formula and
     rejects mismatches;
@@ -119,8 +124,8 @@ total = round((distance·2 + collectibles + nearMisses·100·vehicleBonus
 src/
   app/                 # Next.js App Router pages + API routes
   components/          # layout + landing UI
-  config/              # design tokens, site copy, tracks, avatars, versions
-  features/            # auth, leaderboard, play flow, player, results, settings
+  config/              # design tokens, site copy, avatars, versions
+  features/            # leaderboard, play flow, player, results, settings
   game/
     assets/            # procedural texture painter (all game art)
     balancing/         # vehicles, run constants, deterministic scoring
@@ -143,9 +148,9 @@ available to this build, and a leaderboard that only works with missing
 secrets would ship broken. Every query is contained in
 `src/services/database/`, the SQL is Postgres-friendly, and the auth token
 model maps 1:1 onto Supabase rows — swapping the storage layer in is a
-contained change. Federated sign-in (Google / magic link) is likewise a
-drop-in extension of the claim-handle flow once real OAuth credentials
-exist.
+contained change. If federated sign-in (Google / magic link) is ever
+wanted, it can attach to the same device-identity rows once real OAuth
+credentials exist — the game itself never requires it.
 
 ## Accessibility
 

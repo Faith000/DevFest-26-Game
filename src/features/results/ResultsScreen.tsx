@@ -9,7 +9,6 @@ import { track } from "@/services/analytics";
 
 export type SubmissionState =
   | { status: "idle" }
-  | { status: "authNeeded" }
   | { status: "submitting" }
   | { status: "done"; result: SubmitScoreResponse }
   | { status: "pending"; message: string }

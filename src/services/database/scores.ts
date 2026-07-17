@@ -120,7 +120,6 @@ interface RankedRow {
   player_id: string;
   display_name: string;
   avatar: string;
-  track: string;
   vehicle_id: string;
   score: number;
   remaining_time: number;
@@ -140,7 +139,7 @@ function scopedCte(scope: "weekly" | "alltime"): string {
       ${filter}
     ),
     ranked AS (
-      SELECT b.*, p.display_name, p.avatar, p.track,
+      SELECT b.*, p.display_name, p.avatar,
              ROW_NUMBER() OVER (ORDER BY ${TIE_ORDER_B}) AS rnk
       FROM best b JOIN players p ON p.id = b.player_id
       WHERE b.rn = 1
@@ -154,7 +153,6 @@ function toEntry(r: RankedRow): LeaderboardEntry {
     playerId: r.player_id,
     displayName: r.display_name,
     avatar: r.avatar,
-    preferredTrack: r.track,
     vehicleId: r.vehicle_id as VehicleId,
     score: r.score,
     remainingTime: r.remaining_time,

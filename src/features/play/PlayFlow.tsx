@@ -12,8 +12,7 @@ import { useSettings } from "@/features/settings/useSettings";
 import { PlayerSetup } from "./PlayerSetup";
 import { VehicleSelect } from "./VehicleSelect";
 import { ResultsScreen, type SubmissionState } from "@/features/results/ResultsScreen";
-import { SaveScoreDialog } from "@/features/auth/SaveScoreDialog";
-import { ApiError, renamePlayer, submitScore } from "@/services/api";
+import { ApiError, registerPlayer, submitScore } from "@/services/api";
 import { site } from "@/config/site";
 import { track } from "@/services/analytics";
 import { STORAGE_KEYS, loadJson, removeKey, saveJson } from "@/utils/storage";
@@ -35,7 +34,6 @@ export function PlayFlow() {
   const [payload, setPayload] = useState<RunFinishedPayload | null>(null);
   const [isNewBest, setIsNewBest] = useState(false);
   const [submission, setSubmission] = useState<SubmissionState>({ status: "idle" });
-  const [showClaim, setShowClaim] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
 
   const gameRef = useRef<PhaserGameRef>(null);
@@ -85,17 +83,29 @@ export function PlayFlow() {
 
   /* ------------------------------ submission --------------------------- */
 
+  /**
+   * Submitting needs no sign-in: the first submission silently registers a
+   * device identity (name + avatar from the driver form) and reuses it from
+   * then on. `retried` guards the one automatic recovery after a stale token.
+   */
   const doSubmit = useCallback(async (run: RunStats) => {
-    const p = profileRef.current;
-    if (!p?.playerId || !p.token) {
-      setShowClaim(true);
-      setSubmission({ status: "authNeeded" });
-      return;
-    }
+    const attempt = async (retried: boolean): Promise<void> => {
+    let p = profileRef.current;
+    if (!p) return;
     setSubmission({ status: "submitting" });
-    track("score_submission_started", { vehicle: run.vehicleId });
+    if (!retried) track("score_submission_started", { vehicle: run.vehicleId });
     try {
-      const result = await submitScore(run, { playerId: p.playerId, token: p.token });
+      if (!p.playerId || !p.token) {
+        const reg = await registerPlayer({ displayName: p.displayName, avatar: p.avatar });
+        p = { ...p, playerId: reg.playerId, token: reg.token };
+        profileRef.current = p;
+        saveProfile(p);
+      }
+      const result = await submitScore(
+        run,
+        { playerId: p.playerId!, token: p.token! },
+        { displayName: p.displayName, avatar: p.avatar },
+      );
       removeKey(STORAGE_KEYS.pendingRun);
       setSubmission({ status: "done", result });
       track("score_submitted", {
@@ -104,17 +114,12 @@ export function PlayFlow() {
         status: result.status,
       });
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        // stale or revoked token: forget it and let the player re-claim
-        const stale = profileRef.current;
-        if (stale) {
-          const cleared = { ...stale, playerId: undefined, token: undefined };
-          profileRef.current = cleared;
-          saveProfile(cleared);
-        }
-        setShowClaim(true);
-        setSubmission({ status: "authNeeded" });
-        return;
+      if (err instanceof ApiError && err.status === 401 && !retried) {
+        // stale token (e.g. server reset): drop it and re-register once
+        const cleared = { ...p, playerId: undefined, token: undefined };
+        profileRef.current = cleared;
+        saveProfile(cleared);
+        return attempt(true);
       }
       if (err instanceof ApiError && err.code === "network") {
         saveJson<PendingRun>(STORAGE_KEYS.pendingRun, { run, savedAt: Date.now() });
@@ -136,14 +141,15 @@ export function PlayFlow() {
         setSubmission({ status: "error", message: msg });
       }
     }
+    };
+    return attempt(false);
   }, [saveProfile]);
 
   // retry a stranded submission when connectivity returns
   useEffect(() => {
     const retry = () => {
       const pending = loadJson<PendingRun | null>(STORAGE_KEYS.pendingRun, null);
-      const p = profileRef.current;
-      if (pending && p?.playerId && p.token) void doSubmit(pending.run);
+      if (pending && profileRef.current) void doSubmit(pending.run);
     };
     window.addEventListener("online", retry);
     return () => window.removeEventListener("online", retry);
@@ -151,33 +157,11 @@ export function PlayFlow() {
 
   /* ------------------------------ handlers ----------------------------- */
 
-  const handleSetupDone = async (p: PlayerProfile): Promise<string | null> => {
-    const prev = profileRef.current;
-    // players with a claimed handle rename on the server so the public
-    // leaderboard always shows the name they just entered
-    if (prev?.playerId && prev.token && p.displayName !== prev.displayName) {
-      try {
-        const renamed = await renamePlayer(p.displayName, {
-          playerId: prev.playerId,
-          token: prev.token,
-        });
-        p = { ...p, displayName: renamed.displayName };
-      } catch (err) {
-        if (err instanceof ApiError && err.code === "name_taken") {
-          return "That name is already on the leaderboard. Try another.";
-        }
-        if (err instanceof ApiError && err.status === 401) {
-          // stale token (e.g. server reset): drop it, continue as guest
-          p = { ...p, playerId: undefined, token: undefined };
-        } else {
-          return "Couldn't update your leaderboard name. Check your connection and try again.";
-        }
-      }
-    }
+  const handleSetupDone = (p: PlayerProfile) => {
+    // nothing to sync now — the next submission carries the new name/avatar
     saveProfile(p);
     profileRef.current = p;
     setStage("vehicle");
-    return null;
   };
 
   const handleStart = (v: VehicleId) => {
@@ -220,7 +204,8 @@ export function PlayFlow() {
         gameAudio.play("personalBest");
         track("personal_best_achieved", { score: p.breakdown.total });
       }
-      // signed-in players submit automatically; guests choose
+      // returning submitters go straight to the board; first-timers get one
+      // explicit "Submit Score" tap (which also needs no sign-in)
       const prof = profileRef.current;
       if (prof?.playerId && prof.token) void doSubmit(p.stats);
     },
@@ -311,22 +296,6 @@ export function PlayFlow() {
           onChangeVehicle={() => setStage("vehicle")}
           onShare={handleShare}
           shareCopied={shareCopied}
-        />
-      )}
-      {showClaim && profile && (
-        <SaveScoreDialog
-          profile={profile}
-          onClaimed={(updated) => {
-            saveProfile(updated);
-            // update the ref immediately so the submit below sees the token
-            profileRef.current = updated;
-            setShowClaim(false);
-            if (payload) void doSubmit(payload.stats);
-          }}
-          onCancel={() => {
-            setShowClaim(false);
-            setSubmission({ status: "idle" });
-          }}
         />
       )}
     </main>
