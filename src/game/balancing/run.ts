@@ -5,7 +5,7 @@ export const RUN = {
   /** keynote countdown in seconds */
   keynoteSeconds: 90,
   /** metres to the DevFest gate */
-  goalDistance: 1900,
+  goalDistance: 1500,
   /** world px per metre (speeds below are px/s) */
   pxPerMetre: 20,
 
