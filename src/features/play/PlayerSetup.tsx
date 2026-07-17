@@ -30,9 +30,6 @@ export function PlayerSetup({ initial, onDone }: Props) {
       <h1 className="mt-1 font-[family-name:var(--font-grotesk)] text-3xl font-bold">
         Who&apos;s driving today?
       </h1>
-      <p className="mt-2 text-sm text-ink/70">
-        No account, no sign-in. Pick a name, pick a face, beat the traffic.
-      </p>
 
       <form onSubmit={submit} className="df-card mt-6 space-y-5 p-5">
         <div>
