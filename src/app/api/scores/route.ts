@@ -40,7 +40,7 @@ export async function POST(req: Request) {
   }
 
   const playerId = typeof body.playerId === "string" ? body.playerId : "";
-  const player = authenticate(playerId, token);
+  const player = await authenticate(playerId, token);
   if (!player) {
     return NextResponse.json(
       { error: "Sign in again to submit scores.", code: "unauthorized" },
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     );
   }
   // sustained-volume guard, DB-backed
-  if (countRecentSubmissions(player.id, 60 * 60 * 1000) > 80) {
+  if ((await countRecentSubmissions(player.id, 60 * 60 * 1000)) > 80) {
     return NextResponse.json(
       { error: "Unusual submission volume — try again later.", code: "rate_limited" },
       { status: 429 },
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       ? body.profile.avatar
       : player.avatar;
   if (isValidDisplayName(nextName) && (nextName !== player.display_name || nextAvatar !== player.avatar)) {
-    syncProfile(player.id, nextName, nextAvatar);
+    await syncProfile(player.id, nextName, nextAvatar);
   }
 
   const run = body.run as RunStats | undefined;
@@ -79,9 +79,9 @@ export async function POST(req: Request) {
   }
 
   // duplicate submissions are idempotent, never double-counted
-  const existing = findExistingSession(run.sessionId ?? "");
+  const existing = await findExistingSession(run.sessionId ?? "");
   if (existing) {
-    const ranks = playerRanks(player.id);
+    const ranks = await playerRanks(player.id);
     return NextResponse.json({
       accepted: existing.status !== "rejected",
       status: existing.status,
@@ -102,8 +102,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const stored = storeRun(player.id, run, outcome.score, outcome.verdict);
-  const ranks = playerRanks(player.id);
+  const stored = await storeRun(player.id, run, outcome.score, outcome.verdict);
+  const ranks = await playerRanks(player.id);
   return NextResponse.json({
     accepted: true,
     status: stored.status,

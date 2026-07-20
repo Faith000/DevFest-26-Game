@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const playerId = url.searchParams.get("playerId") ?? undefined;
 
   try {
-    const data = queryLeaderboard({ scope, limit, cursor, q, playerId });
+    const data = await queryLeaderboard({ scope, limit, cursor, q, playerId });
     return NextResponse.json({ scope, ...data });
   } catch (err) {
     console.error("leaderboard query failed", err);

@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   const avatar =
     typeof body.avatar === "string" && isValidAvatar(body.avatar) ? body.avatar : DEFAULT_AVATAR;
 
-  const result = registerPlayer({ displayName, avatar });
+  const result = await registerPlayer({ displayName, avatar });
   return NextResponse.json({
     playerId: result.id,
     token: result.token,

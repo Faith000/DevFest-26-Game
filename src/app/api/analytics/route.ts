@@ -27,9 +27,11 @@ export async function POST(req: Request) {
     const body = (await req.json()) as { event?: unknown; params?: unknown };
     if (typeof body.event === "string" && KNOWN_EVENTS.has(body.event)) {
       const params = JSON.stringify(body.params ?? {}).slice(0, 500);
-      getDb()
-        .prepare("INSERT INTO analytics_events (event, params, created_at) VALUES (?, ?, ?)")
-        .run(body.event, params, new Date().toISOString());
+      const db = await getDb();
+      await db.execute({
+        sql: "INSERT INTO analytics_events (event, params, created_at) VALUES (?, ?, ?)",
+        args: [body.event, params, new Date().toISOString()],
+      });
     }
   } catch {
     /* analytics must never fail loudly */

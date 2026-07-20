@@ -10,14 +10,15 @@ const TIE_ORDER =
 const TIE_ORDER_B =
   "b.score DESC, b.remaining_time DESC, b.collisions ASC, b.near_misses DESC, b.created_at ASC";
 
-function ensureWeek(weekId: string): void {
-  const db = getDb();
+async function ensureWeek(weekId: string): Promise<void> {
+  const db = await getDb();
   const start = weekStart(new Date());
   const end = new Date(start);
   end.setUTCDate(end.getUTCDate() + 7);
-  db.prepare(
-    "INSERT OR IGNORE INTO leaderboard_weeks (id, starts_at, ends_at) VALUES (?, ?, ?)",
-  ).run(weekId, start.toISOString(), end.toISOString());
+  await db.execute({
+    sql: "INSERT OR IGNORE INTO leaderboard_weeks (id, starts_at, ends_at) VALUES (?, ?, ?)",
+    args: [weekId, start.toISOString(), end.toISOString()],
+  });
 }
 
 export interface StoredSubmission {
@@ -27,13 +28,22 @@ export interface StoredSubmission {
   duplicate: boolean;
 }
 
-export function findExistingSession(sessionId: string): StoredSubmission | null {
-  const db = getDb();
-  const row = db
-    .prepare("SELECT verification_status, score, week_id FROM game_sessions WHERE id = ?")
-    .get(sessionId) as { verification_status: VerificationStatus; score: number; week_id: string } | undefined;
+export async function findExistingSession(sessionId: string): Promise<StoredSubmission | null> {
+  const db = await getDb();
+  const res = await db.execute({
+    sql: "SELECT verification_status, score, week_id FROM game_sessions WHERE id = ?",
+    args: [sessionId],
+  });
+  const row = res.rows[0] as unknown as
+    | { verification_status: VerificationStatus; score: number; week_id: string }
+    | undefined;
   if (!row) return null;
-  return { status: row.verification_status, score: row.score, weekId: row.week_id, duplicate: true };
+  return {
+    status: row.verification_status,
+    score: Number(row.score),
+    weekId: row.week_id,
+    duplicate: true,
+  };
 }
 
 /** true when b beats a under the published tie-break rules */
@@ -48,68 +58,80 @@ function beats(
   return false; // earlier submission wins exact ties
 }
 
-export function storeRun(
+export async function storeRun(
   playerId: string,
   run: RunStats,
   score: number,
   status: Exclude<VerificationStatus, "rejected">,
-): StoredSubmission {
-  const db = getDb();
+): Promise<StoredSubmission> {
+  const db = await getDb();
   const weekId = weekIdFor(new Date());
-  ensureWeek(weekId);
+  await ensureWeek(weekId);
   const createdAt = new Date().toISOString();
   const collectibles =
     run.collectibles.star + run.collectibles.codeToken + run.collectibles.wifi + run.collectibles.badge;
 
-  const insert = db.transaction(() => {
-    db.prepare(
-      `INSERT INTO game_sessions
+  const tx = await db.transaction("write");
+  try {
+    await tx.execute({
+      sql: `INSERT INTO game_sessions
         (id, player_id, started_at, ended_at, game_version, scoring_version, vehicle_id,
          result, distance, remaining_time, collisions, near_misses, dodges,
          stars, code_tokens, wifi, badges, highest_combo, combo_score, score,
          week_id, verification_status, created_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).run(
-      run.sessionId, playerId, run.startedAt, run.endedAt, run.gameVersion, run.scoringVersion,
-      run.vehicleId, run.result, run.distance, run.remainingTime, run.collisions, run.nearMisses,
-      run.dodges, run.collectibles.star, run.collectibles.codeToken, run.collectibles.wifi,
-      run.collectibles.badge, run.highestCombo, run.comboScore, score, weekId, status, createdAt,
-    );
+      args: [
+        run.sessionId, playerId, run.startedAt, run.endedAt, run.gameVersion, run.scoringVersion,
+        run.vehicleId, run.result, run.distance, run.remainingTime, run.collisions, run.nearMisses,
+        run.dodges, run.collectibles.star, run.collectibles.codeToken, run.collectibles.wifi,
+        run.collectibles.badge, run.highestCombo, run.comboScore, score, weekId, status, createdAt,
+      ],
+    });
 
     // only verified runs occupy the public boards, one row per player per week
-    if (status !== "verified") return;
+    if (status === "verified") {
+      const candidate = {
+        score,
+        remaining_time: run.remainingTime,
+        collisions: run.collisions,
+        near_misses: run.nearMisses,
+      };
+      const existingRes = await tx.execute({
+        sql: "SELECT id, score, remaining_time, collisions, near_misses FROM leaderboard_scores WHERE player_id = ? AND week_id = ?",
+        args: [playerId, weekId],
+      });
+      const existing = existingRes.rows[0] as unknown as
+        | { id: string; score: number; remaining_time: number; collisions: number; near_misses: number }
+        | undefined;
 
-    const candidate = {
-      score,
-      remaining_time: run.remainingTime,
-      collisions: run.collisions,
-      near_misses: run.nearMisses,
-    };
-    const existing = db
-      .prepare(
-        "SELECT id, score, remaining_time, collisions, near_misses FROM leaderboard_scores WHERE player_id = ? AND week_id = ?",
-      )
-      .get(playerId, weekId) as
-      | { id: string; score: number; remaining_time: number; collisions: number; near_misses: number }
-      | undefined;
-
-    if (existing && !beats(candidate, existing)) return;
-
-    if (existing) {
-      db.prepare("DELETE FROM leaderboard_scores WHERE id = ?").run(existing.id);
+      if (!existing || beats(candidate, existing)) {
+        if (existing) {
+          await tx.execute({
+            sql: "DELETE FROM leaderboard_scores WHERE id = ?",
+            args: [String(existing.id)],
+          });
+        }
+        await tx.execute({
+          sql: `INSERT INTO leaderboard_scores
+            (id, player_id, session_id, week_id, score, distance, remaining_time,
+             collisions, near_misses, collectibles, highest_combo, vehicle_id, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [
+            crypto.randomUUID(), playerId, run.sessionId, weekId, score, run.distance,
+            run.remainingTime, run.collisions, run.nearMisses, collectibles, run.highestCombo,
+            run.vehicleId, createdAt,
+          ],
+        });
+      }
     }
-    db.prepare(
-      `INSERT INTO leaderboard_scores
-        (id, player_id, session_id, week_id, score, distance, remaining_time,
-         collisions, near_misses, collectibles, highest_combo, vehicle_id, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).run(
-      crypto.randomUUID(), playerId, run.sessionId, weekId, score, run.distance,
-      run.remainingTime, run.collisions, run.nearMisses, collectibles, run.highestCombo,
-      run.vehicleId, createdAt,
-    );
-  });
-  insert();
+
+    await tx.commit();
+  } catch (err) {
+    await tx.rollback();
+    throw err;
+  } finally {
+    tx.close();
+  }
 
   return { status, score, weekId, duplicate: false };
 }
@@ -149,60 +171,64 @@ function scopedCte(scope: "weekly" | "alltime"): string {
 
 function toEntry(r: RankedRow): LeaderboardEntry {
   return {
-    rank: r.rnk,
+    rank: Number(r.rnk),
     playerId: r.player_id,
     displayName: r.display_name,
     avatar: r.avatar,
     vehicleId: r.vehicle_id as VehicleId,
-    score: r.score,
-    remainingTime: r.remaining_time,
-    collisions: r.collisions,
-    nearMisses: r.near_misses,
+    score: Number(r.score),
+    remainingTime: Number(r.remaining_time),
+    collisions: Number(r.collisions),
+    nearMisses: Number(r.near_misses),
     createdAt: r.created_at,
   };
 }
 
-export function queryLeaderboard(opts: {
+export async function queryLeaderboard(opts: {
   scope: "weekly" | "alltime";
   limit: number;
   cursor: number;
   q?: string;
   playerId?: string;
-}): {
+}): Promise<{
   entries: LeaderboardEntry[];
   me: LeaderboardEntry | null;
   total: number;
   weekId: string;
   nextCursor: number | null;
-} {
-  const db = getDb();
+}> {
+  const db = await getDb();
   const weekId = weekIdFor(new Date());
-  ensureWeek(weekId);
+  await ensureWeek(weekId);
   const cte = scopedCte(opts.scope);
-  const params = { weekId };
 
-  const total = (
-    db.prepare(`${cte} SELECT COUNT(*) AS n FROM ranked`).get(params) as { n: number }
-  ).n;
+  const totalRes = await db.execute({
+    sql: `${cte} SELECT COUNT(*) AS n FROM ranked`,
+    args: { weekId },
+  });
+  const total = Number((totalRes.rows[0] as unknown as { n: number }).n);
 
-  let rows: RankedRow[];
+  let rowsRes;
   if (opts.q) {
-    rows = db
-      .prepare(
-        `${cte} SELECT * FROM ranked WHERE instr(lower(display_name), lower(@q)) > 0 ORDER BY rnk LIMIT @limit OFFSET @cursor`,
-      )
-      .all({ ...params, q: opts.q, limit: opts.limit, cursor: opts.cursor }) as RankedRow[];
+    rowsRes = await db.execute({
+      sql: `${cte} SELECT * FROM ranked WHERE instr(lower(display_name), lower(@q)) > 0 ORDER BY rnk LIMIT @limit OFFSET @cursor`,
+      args: { weekId, q: opts.q, limit: opts.limit, cursor: opts.cursor },
+    });
   } else {
-    rows = db
-      .prepare(`${cte} SELECT * FROM ranked ORDER BY rnk LIMIT @limit OFFSET @cursor`)
-      .all({ ...params, limit: opts.limit, cursor: opts.cursor }) as RankedRow[];
+    rowsRes = await db.execute({
+      sql: `${cte} SELECT * FROM ranked ORDER BY rnk LIMIT @limit OFFSET @cursor`,
+      args: { weekId, limit: opts.limit, cursor: opts.cursor },
+    });
   }
+  const rows = rowsRes.rows as unknown as RankedRow[];
 
   let me: LeaderboardEntry | null = null;
   if (opts.playerId) {
-    const meRow = db
-      .prepare(`${cte} SELECT * FROM ranked WHERE player_id = @playerId`)
-      .get({ ...params, playerId: opts.playerId }) as RankedRow | undefined;
+    const meRes = await db.execute({
+      sql: `${cte} SELECT * FROM ranked WHERE player_id = @playerId`,
+      args: { weekId, playerId: opts.playerId },
+    });
+    const meRow = meRes.rows[0] as unknown as RankedRow | undefined;
     if (meRow) me = toEntry(meRow);
   }
 
@@ -216,23 +242,31 @@ export function queryLeaderboard(opts: {
   };
 }
 
-export function playerRanks(playerId: string): { weeklyRank: number | null; allTimeRank: number | null } {
-  const db = getDb();
+export async function playerRanks(
+  playerId: string,
+): Promise<{ weeklyRank: number | null; allTimeRank: number | null }> {
+  const db = await getDb();
   const weekId = weekIdFor(new Date());
-  const get = (scope: "weekly" | "alltime"): number | null => {
-    const row = db
-      .prepare(`${scopedCte(scope)} SELECT rnk FROM ranked WHERE player_id = @playerId`)
-      .get({ weekId, playerId }) as { rnk: number } | undefined;
-    return row?.rnk ?? null;
+  const get = async (scope: "weekly" | "alltime"): Promise<number | null> => {
+    const res = await db.execute({
+      sql: `${scopedCte(scope)} SELECT rnk FROM ranked WHERE player_id = @playerId`,
+      args: { weekId, playerId },
+    });
+    const row = res.rows[0] as unknown as { rnk: number } | undefined;
+    return row ? Number(row.rnk) : null;
   };
-  return { weeklyRank: get("weekly"), allTimeRank: get("alltime") };
+  return { weeklyRank: await get("weekly"), allTimeRank: await get("alltime") };
 }
 
-export function countRecentSubmissions(playerId: string, windowMs: number): number {
-  const db = getDb();
+export async function countRecentSubmissions(
+  playerId: string,
+  windowMs: number,
+): Promise<number> {
+  const db = await getDb();
   const cutoff = new Date(Date.now() - windowMs).toISOString();
-  const row = db
-    .prepare("SELECT COUNT(*) AS n FROM game_sessions WHERE player_id = ? AND created_at > ?")
-    .get(playerId, cutoff) as { n: number };
-  return row.n;
+  const res = await db.execute({
+    sql: "SELECT COUNT(*) AS n FROM game_sessions WHERE player_id = ? AND created_at > ?",
+    args: [playerId, cutoff],
+  });
+  return Number((res.rows[0] as unknown as { n: number }).n);
 }

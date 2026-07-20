@@ -26,8 +26,8 @@ npm run build
 npm start
 ```
 
-There are **no required environment variables**. The leaderboard database is
-created automatically at `.data/game.db` (WAL-mode SQLite).
+Locally there are **no required environment variables** — the leaderboard uses
+an embedded SQLite file created automatically at `.data/game.db`.
 
 Checks:
 
@@ -35,6 +35,39 @@ Checks:
 npm run lint
 npm run typecheck
 ```
+
+## Deploying to Vercel / serverless (leaderboard database)
+
+The data layer uses **libSQL** (`@libsql/client`). Locally it opens the
+embedded file above. On a serverless host the filesystem is read-only and
+ephemeral, so you must point it at a hosted **Turso** database via two
+environment variables:
+
+| Variable             | Purpose                                   |
+| -------------------- | ----------------------------------------- |
+| `TURSO_DATABASE_URL` | `libsql://<your-db>.turso.io`             |
+| `TURSO_AUTH_TOKEN`   | database auth token                       |
+
+When `TURSO_DATABASE_URL` is set, the fetch-based libSQL web client is used —
+no native binary, no filesystem — which is what makes it work on Vercel.
+
+One-time setup (free tier, no card):
+
+```bash
+# install the CLI: https://docs.turso.tech/cli/installation
+turso auth signup
+turso db create devfest-lagos-traffic
+turso db show devfest-lagos-traffic --url        # -> TURSO_DATABASE_URL
+turso db tokens create devfest-lagos-traffic     # -> TURSO_AUTH_TOKEN
+```
+
+Add both values in Vercel → Project → Settings → Environment Variables (all
+environments), then redeploy. The schema is created automatically on first
+request — no manual migration step.
+
+> A persistent Node host (Render/Railway/Fly/VPS) can instead keep the
+> embedded file by setting `ELTT_DB_PATH` to a path on a mounted disk
+> (e.g. `ELTT_DB_PATH=/data/game.db`); no Turso needed.
 
 ## How it plays
 
@@ -152,16 +185,17 @@ Phaser owns the whole game loop (movement, spawning, collisions, timing,
 HUD); React never re-renders during play. The game bundle is dynamically
 imported so the landing page stays light.
 
-### Why SQLite instead of Supabase?
+### Why libSQL / Turso?
 
-The brief suggested Supabase, but production Supabase credentials are not
-available to this build, and a leaderboard that only works with missing
-secrets would ship broken. Every query is contained in
-`src/services/database/`, the SQL is Postgres-friendly, and the auth token
-model maps 1:1 onto Supabase rows — swapping the storage layer in is a
-contained change. If federated sign-in (Google / magic link) is ever
-wanted, it can attach to the same device-identity rows once real OAuth
-credentials exist — the game itself never requires it.
+The brief suggested Supabase, but the storage need here is a leaderboard, so
+the data layer uses **libSQL** — SQLite that runs embedded locally and against
+a hosted **Turso** database in production (see the deployment section above).
+This keeps one SQL dialect and one code path across dev and serverless with no
+schema rewrite. Every query is contained in `src/services/database/`, so
+moving to Postgres/Supabase later is still a contained change. If federated
+sign-in (Google / magic link) is ever wanted, it can attach to the same
+device-identity rows once real OAuth credentials exist — the game itself
+never requires it.
 
 ## Accessibility
 

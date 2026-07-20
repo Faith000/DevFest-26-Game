@@ -21,41 +21,59 @@ const hashToken = (token: string): string =>
  * stays on the player's device, display names may repeat, and identity for
  * leaderboard purposes is the (playerId, token) pair.
  */
-export function registerPlayer(input: {
+export async function registerPlayer(input: {
   displayName: string;
   avatar: string;
-}): { id: string; token: string; displayName: string } {
-  const db = getDb();
+}): Promise<{ id: string; token: string; displayName: string }> {
+  const db = await getDb();
   const name = input.displayName.trim();
   const id = crypto.randomUUID();
   const token = crypto.randomBytes(24).toString("hex");
-  db.prepare(
-    `INSERT INTO players (id, display_name, display_name_lower, avatar, token_hash, created_at)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-  ).run(id, name, name.toLowerCase(), input.avatar, hashToken(token), new Date().toISOString());
+  await db.execute({
+    sql: `INSERT INTO players (id, display_name, display_name_lower, avatar, token_hash, created_at)
+          VALUES (?, ?, ?, ?, ?, ?)`,
+    args: [id, name, name.toLowerCase(), input.avatar, hashToken(token), new Date().toISOString()],
+  });
   return { id, token, displayName: name };
 }
 
 /** Keeps the public profile in step with what the player last entered. */
-export function syncProfile(playerId: string, displayName: string, avatar: string): void {
-  const db = getDb();
-  db.prepare(
-    "UPDATE players SET display_name = ?, display_name_lower = ?, avatar = ? WHERE id = ?",
-  ).run(displayName.trim(), displayName.trim().toLowerCase(), avatar, playerId);
+export async function syncProfile(
+  playerId: string,
+  displayName: string,
+  avatar: string,
+): Promise<void> {
+  const db = await getDb();
+  const name = displayName.trim();
+  await db.execute({
+    sql: "UPDATE players SET display_name = ?, display_name_lower = ?, avatar = ? WHERE id = ?",
+    args: [name, name.toLowerCase(), avatar, playerId],
+  });
 }
 
 /** Returns the player only when id + bearer token match. */
-export function authenticate(playerId: string, token: string): PlayerRow | null {
+export async function authenticate(
+  playerId: string,
+  token: string,
+): Promise<PlayerRow | null> {
   if (!playerId || !token) return null;
-  const db = getDb();
-  const row = db
-    .prepare("SELECT id, display_name, avatar, token_hash FROM players WHERE id = ?")
-    .get(playerId) as (PlayerRow & { token_hash: string }) | undefined;
+  const db = await getDb();
+  const res = await db.execute({
+    sql: "SELECT id, display_name, avatar, token_hash FROM players WHERE id = ?",
+    args: [playerId],
+  });
+  const row = res.rows[0] as unknown as
+    | { id: string; display_name: string; avatar: string; token_hash: string }
+    | undefined;
   if (!row) return null;
-  const expected = Buffer.from(row.token_hash, "hex");
+  const expected = Buffer.from(String(row.token_hash), "hex");
   const actual = Buffer.from(hashToken(token), "hex");
   if (expected.length !== actual.length || !crypto.timingSafeEqual(expected, actual)) {
     return null;
   }
-  return { id: row.id, display_name: row.display_name, avatar: row.avatar };
+  return {
+    id: String(row.id),
+    display_name: String(row.display_name),
+    avatar: String(row.avatar),
+  };
 }
