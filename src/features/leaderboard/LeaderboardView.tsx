@@ -24,50 +24,23 @@ function fmtDate(iso: string): string {
   }
 }
 
-function Podium({ entries }: { entries: LeaderboardEntry[] }) {
-  const [first, second, third] = entries;
-  const spot = (e: LeaderboardEntry | undefined, place: number, h: string, bg: string) =>
-    e ? (
-      <div className="flex flex-1 flex-col items-center gap-2">
-        <span className="text-3xl" aria-hidden>
-          {e.avatar}
-        </span>
-        <p className="max-w-full truncate px-1 font-[family-name:var(--font-grotesk)] text-sm font-bold">
-          {e.displayName}
-        </p>
-        <p className="font-[family-name:var(--font-mono-df)] text-xs font-bold tabular-nums">
-          {e.score.toLocaleString()}
-        </p>
-        <div
-          className={`df-border df-shadow flex w-full items-start justify-center ${h} ${bg}`}
-        >
-          <span className="mt-2 font-[family-name:var(--font-grotesk)] text-2xl font-bold">
-            {place}
-          </span>
-        </div>
-      </div>
-    ) : (
-      <div className="flex-1" />
-    );
-
-  return (
-    <div className="flex items-end gap-3" aria-label="Top three podium">
-      {spot(second, 2, "h-20", "bg-pastel-blue")}
-      {spot(first, 1, "h-28", "bg-pastel-yellow")}
-      {spot(third, 3, "h-14", "bg-pastel-pink")}
-    </div>
-  );
-}
+const MEDALS: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
 function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
+  const medal = MEDALS[entry.rank];
+  const top = entry.rank <= 3;
   return (
     <li
       className={`df-border flex items-center gap-3 px-3 py-2.5 ${
-        isMe ? "bg-pastel-yellow" : "bg-white"
+        isMe ? "bg-pastel-yellow" : top ? "bg-pastel-blue/40" : "bg-white"
       }`}
     >
-      <span className="w-8 shrink-0 font-[family-name:var(--font-grotesk)] font-bold tabular-nums">
-        #{entry.rank}
+      <span
+        className={`flex w-9 shrink-0 items-center justify-center font-[family-name:var(--font-grotesk)] font-bold tabular-nums ${
+          top ? "text-lg" : ""
+        }`}
+      >
+        {medal ?? `#${entry.rank}`}
       </span>
       <span className="text-xl" aria-hidden>
         {entry.avatar}
@@ -155,8 +128,6 @@ export function LeaderboardView() {
 
   const me = data?.me ?? null;
   const meVisible = me !== null && entries.some((e) => e.playerId === me.playerId);
-  const podium = entries.length > 0 ? entries.slice(0, 3) : [];
-  const listEntries = entries.slice(3);
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-8 pb-16">
@@ -254,9 +225,8 @@ export function LeaderboardView() {
 
         {state === "ready" && entries.length > 0 && (
           <>
-            {podium.length > 0 && <Podium entries={podium} />}
-            <ol className={`space-y-2 ${podium.length > 0 ? "mt-6" : ""}`}>
-              {listEntries.map((e) => (
+            <ol className="space-y-2">
+              {entries.map((e) => (
                 <Row key={e.playerId} entry={e} isMe={e.playerId === profile?.playerId} />
               ))}
             </ol>

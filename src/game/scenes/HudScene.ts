@@ -401,6 +401,13 @@ export class HudScene extends Phaser.Scene {
   /* ------------------------------- pause ------------------------------- */
 
   private buildPauseOverlay(): void {
+    // The canvas renders at a fixed logical size and is scaled up to fill the
+    // screen, which blurs canvas text. Rasterise this static overlay's text at
+    // the real on-screen pixel density so it stays crisp when upscaled.
+    const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+    const fitScale = (this.scale.displaySize.width || GAME_WIDTH) / GAME_WIDTH;
+    const res = Phaser.Math.Clamp(Math.ceil(dpr * fitScale), 2, 4);
+
     const dim = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x1e1e1e, 0.55);
     const pw = 260;
     const ph = 300;
@@ -412,6 +419,7 @@ export class HudScene extends Phaser.Scene {
         fontSize: "26px",
         fontStyle: "bold",
         color: palette.ink,
+        resolution: res,
       })
       .setOrigin(0.5);
     const sub = this.add
@@ -419,6 +427,7 @@ export class HudScene extends Phaser.Scene {
         fontFamily: MONO,
         fontSize: "9px",
         color: "#5f5f5f",
+        resolution: res,
       })
       .setOrigin(0.5);
 
@@ -439,6 +448,7 @@ export class HudScene extends Phaser.Scene {
           fontSize: "15px",
           fontStyle: "bold",
           color,
+          resolution: res,
         })
         .setOrigin(0.5);
       const c = this.add.container(0, y, [bg, txt]);
@@ -480,6 +490,7 @@ export class HudScene extends Phaser.Scene {
           color: on ? palette.ink : "#8a8a8a",
           backgroundColor: on ? "#ccf6c5" : "#e3e3e3",
           padding: { x: 6, y: 4 },
+          resolution: res,
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
