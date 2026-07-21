@@ -201,23 +201,33 @@ export async function queryLeaderboard(opts: {
   const weekId = weekIdFor(new Date());
   await ensureWeek(weekId);
   const cte = scopedCte(opts.scope);
+  // @weekId only appears in the weekly CTE; the remote Turso client rejects a
+  // named arg that the SQL doesn't reference, so only pass it when weekly.
+  const weekArgs: Record<string, string> =
+    opts.scope === "weekly" ? { weekId } : {};
 
   const totalRes = await db.execute({
     sql: `${cte} SELECT COUNT(*) AS n FROM ranked`,
-    args: { weekId },
+    args: weekArgs,
   });
   const total = Number((totalRes.rows[0] as unknown as { n: number }).n);
 
+  const rowArgs: Record<string, string | number> = {
+    ...weekArgs,
+    limit: opts.limit,
+    cursor: opts.cursor,
+  };
   let rowsRes;
   if (opts.q) {
+    rowArgs.q = opts.q;
     rowsRes = await db.execute({
       sql: `${cte} SELECT * FROM ranked WHERE instr(lower(display_name), lower(@q)) > 0 ORDER BY rnk LIMIT @limit OFFSET @cursor`,
-      args: { weekId, q: opts.q, limit: opts.limit, cursor: opts.cursor },
+      args: rowArgs,
     });
   } else {
     rowsRes = await db.execute({
       sql: `${cte} SELECT * FROM ranked ORDER BY rnk LIMIT @limit OFFSET @cursor`,
-      args: { weekId, limit: opts.limit, cursor: opts.cursor },
+      args: rowArgs,
     });
   }
   const rows = rowsRes.rows as unknown as RankedRow[];
@@ -226,7 +236,7 @@ export async function queryLeaderboard(opts: {
   if (opts.playerId) {
     const meRes = await db.execute({
       sql: `${cte} SELECT * FROM ranked WHERE player_id = @playerId`,
-      args: { weekId, playerId: opts.playerId },
+      args: { ...weekArgs, playerId: opts.playerId },
     });
     const meRow = meRes.rows[0] as unknown as RankedRow | undefined;
     if (meRow) me = toEntry(meRow);
@@ -248,9 +258,11 @@ export async function playerRanks(
   const db = await getDb();
   const weekId = weekIdFor(new Date());
   const get = async (scope: "weekly" | "alltime"): Promise<number | null> => {
+    const args: Record<string, string> =
+      scope === "weekly" ? { weekId, playerId } : { playerId };
     const res = await db.execute({
       sql: `${scopedCte(scope)} SELECT rnk FROM ranked WHERE player_id = @playerId`,
-      args: { weekId, playerId },
+      args,
     });
     const row = res.rows[0] as unknown as { rnk: number } | undefined;
     return row ? Number(row.rnk) : null;
