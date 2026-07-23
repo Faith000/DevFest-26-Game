@@ -21,7 +21,10 @@ export function TopThree() {
   return (
     <div className="df-card overflow-hidden">
       <div className="flex items-center justify-between border-b-2 border-ink bg-google-green px-4 py-2.5">
-        <p className="df-label">The Top 3</p>
+        <p className="df-label flex items-center gap-1.5">
+          <span aria-hidden>🏅</span>
+          Top Players
+        </p>
         <Link
           href="/leaderboard"
           className="df-label text-ink underline-offset-2 hover:underline"
