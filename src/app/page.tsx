@@ -39,7 +39,7 @@ export default function Home() {
  Lagos traffic
  </h1>
  <div className="mt-6 flow-root">
- <span className="hero-stamp block w-fit max-w-full -rotate-3 whitespace-normal border-2 border-ink bg-google-blue px-3 pt-1 pb-2 font-[family-name:var(--font-display)] text-[clamp(1.5rem,4vw,3rem)] leading-none font-extrabold uppercase sm:whitespace-nowrap">
+ <span className="hero-stamp block w-fit max-w-full -rotate-1 whitespace-normal border-2 border-ink bg-google-blue px-3 pt-1 pb-2 font-[family-name:var(--font-display)] text-[clamp(1.5rem,4vw,3rem)] leading-none font-extrabold uppercase sm:whitespace-nowrap">
  before the keynote?
  </span>
  </div>

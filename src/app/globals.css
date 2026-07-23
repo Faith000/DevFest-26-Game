@@ -321,15 +321,15 @@ body {
 @keyframes hero-stamp-in {
   0% {
     opacity: 0;
-    transform: rotate(-8deg) translateY(14px) scale(0.9);
+    transform: rotate(-4deg) translateY(14px) scale(0.9);
   }
   70% {
     opacity: 1;
-    transform: rotate(-2deg) translateY(0) scale(1.04);
+    transform: rotate(0deg) translateY(0) scale(1.04);
   }
   100% {
     opacity: 1;
-    transform: rotate(-3deg) translateY(0) scale(1);
+    transform: rotate(-1deg) translateY(0) scale(1);
   }
 }
 
