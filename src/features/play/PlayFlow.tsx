@@ -261,7 +261,7 @@ export function PlayFlow() {
 
   if (stage === "setup") {
     return (
-      <main className="dot-grid min-h-dvh">
+      <main className="dot-grid flex min-h-dvh items-center justify-center">
         <PlayerSetup initial={profile} onDone={handleSetupDone} />
       </main>
     );

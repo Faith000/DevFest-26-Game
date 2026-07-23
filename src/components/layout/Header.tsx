@@ -20,10 +20,10 @@ export function Header() {
  <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
  <Link href="/" className="group flex items-center gap-2.5">
  <span className="grid grid-cols-2 gap-0.5 transition-transform duration-300 group-hover:rotate-90" aria-hidden>
- <span className="h-2.5 w-2.5 border border-ink bg-core-red" />
- <span className="h-2.5 w-2.5 border border-ink bg-core-blue" />
- <span className="h-2.5 w-2.5 border border-ink bg-core-amber" />
- <span className="h-2.5 w-2.5 border border-ink bg-core-green" />
+ <span className="h-2.5 w-2.5 border border-ink bg-google-red" />
+ <span className="h-2.5 w-2.5 border border-ink bg-google-blue" />
+ <span className="h-2.5 w-2.5 border border-ink bg-google-yellow" />
+ <span className="h-2.5 w-2.5 border border-ink bg-google-green" />
  </span>
  <span className="font-[family-name:var(--font-grotesk)] text-lg font-bold leading-none tracking-tight">
  Lagos Tech Traffic
@@ -53,7 +53,7 @@ export function Header() {
  >
  ⚙ SETTINGS
  </button>
- <Link href="/play" className="df-btn df-btn-primary px-4 py-2 text-sm">
+ <Link href="/play" className="df-btn df-btn-accent px-4 py-2 text-sm">
  Start Driving
  </Link>
  </nav>
@@ -111,7 +111,7 @@ export function Header() {
  <Link
  href="/play"
  onClick={() => setOpen(false)}
- className="df-btn df-btn-primary w-full"
+ className="df-btn df-btn-accent w-full"
  >
  Start Driving
  </Link>

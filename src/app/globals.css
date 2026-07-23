@@ -1,36 +1,42 @@
 @import "tailwindcss";
 
 @theme {
-  /* "Have Fun" — a bright, playful, retro-party light theme (inspired by
-     hurryupandhavefun.com). Deliberately unlike the DevFest site's flat
-     Google-colour / hard-edged system: warm cream paper, rich cocoa ink, a
-     saturated pop palette (hot pink, periwinkle, marigold, grape, olive,
-     tangerine), fat chunky display type, rounded pills and playful colour
-     blocks. */
-  --color-ink: #121212;
-  --color-ink-soft: #565656;
-  --color-paper: #fbf5e9;
-  --color-paper-deep: #2a1305;
-  --color-surface: #ffffff;
-  --color-surface-2: #fdf1dc;
+  /* "Have Fun" — a bright, playful, retro-party theme (inspired by
+     hurryupandhavefun.com), rendered dark. Deliberately unlike the DevFest
+     site's flat Google-colour / hard-edged system: near-black paper, warm
+     off-white ink, a saturated pop palette (hot pink, periwinkle, marigold,
+     grape, olive, tangerine) brightened for a dark backdrop, fat chunky
+     display type, sharp corners and playful colour blocks. */
+  --color-ink: #f5f5f5;
+  --color-ink-soft: #c0c0c0;
+  --color-paper: #0f0f0f;
+  --color-paper-deep: #000000;
+  --color-surface: #1a1a1a;
+  --color-surface-2: #252525;
 
-  /* semantic cores, remapped to the pop palette */
-  --color-core-red: #f2683f; /* tangerine */
-  --color-core-blue: #6b8fe8; /* periwinkle */
-  --color-core-green: #8a9a1f; /* olive */
-  --color-core-amber: #ffc73f; /* marigold */
+  /* semantic cores, remapped to the pop palette (brightened for dark) */
+  --color-core-red: #ff7c5c; /* tangerine */
+  --color-core-blue: #8fa8ff; /* periwinkle */
+  --color-core-green: #b0c724; /* olive */
+  --color-core-amber: #ffd966; /* marigold */
 
   /* extra playful pops (decorative) */
-  --color-pop-pink: #fb6aa8;
-  --color-pop-purple: #a45afe;
-  --color-pop-blue: #6b8fe8;
-  --color-pop-yellow: #ffc73f;
+  --color-pop-pink: #ff88c0;
+  --color-pop-purple: #c97eff;
+  --color-pop-blue: #8fa8ff;
+  --color-pop-yellow: #ffd966;
 
-  /* light tints for chips / rows / highlights */
-  --color-pastel-yellow: #ffe6a3;
-  --color-pastel-blue: #dbe8ff;
-  --color-pastel-green: #eaeec2;
-  --color-pastel-pink: #ffd8e7;
+  /* dark tints for chips / rows / highlights */
+  --color-pastel-yellow: #4a4a2a;
+  --color-pastel-blue: #1a2a4a;
+  --color-pastel-green: #2a3a1a;
+  --color-pastel-pink: #4a2a3a;
+
+  /* solid Google brand colours (logo mark, selected accent blocks) */
+  --color-google-red: #ea4335;
+  --color-google-blue: #4285f4;
+  --color-google-yellow: #fbbc05;
+  --color-google-green: #34a853;
 
   --font-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
   --font-grotesk: "Space Grotesk", ui-sans-serif, sans-serif;
@@ -39,12 +45,12 @@
 }
 
 :root {
-  --ink: #121212;
-  --paper: #fbf5e9;
-  --surface: #ffffff;
+  --ink: #f5f5f5;
+  --paper: #0f0f0f;
+  --surface: #1a1a1a;
   /* declared here (not only in @theme) so it is never tree-shaken */
   --font-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 html {
@@ -153,8 +159,8 @@ body {
 
 /* bold coloured button (opt-in) — always dark text on the bright marigold */
 .df-btn-accent {
-  background: var(--color-core-amber);
-  color: var(--ink);
+  background: var(--color-google-yellow);
+  color: #141414;
   border-color: var(--ink);
 }
 

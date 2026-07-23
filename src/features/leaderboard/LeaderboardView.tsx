@@ -22,9 +22,7 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
           : "before:bg-transparent";
   return (
     <li
-      className={`df-border hover-lift relative flex items-center gap-3 overflow-hidden py-2.5 pr-3 pl-5 before:absolute before:top-0 before:left-0 before:h-full before:w-2 before:content-[''] ${accent} ${
-        isMe ? "bg-pastel-yellow" : "bg-surface"
-      }`}
+      className={`df-border hover-lift relative flex items-center gap-3 overflow-hidden bg-surface py-2.5 pr-3 pl-5 before:absolute before:top-0 before:left-0 before:h-full before:w-2 before:content-[''] ${accent}`}
     >
       <span
         className={`flex w-9 shrink-0 items-center justify-center font-[family-name:var(--font-grotesk)] font-bold tabular-nums ${

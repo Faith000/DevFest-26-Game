@@ -26,7 +26,7 @@ export default function Home() {
  <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 lg:grid-cols-[1.05fr_0.95fr]">
  <div className="anim-pop-in">
  <div className="flex flex-wrap items-center gap-2">
- <span className="df-chip bg-pastel-yellow">DEVFEST LAGOS · 13–14 NOV 2026</span>
+ <span className="df-chip">DEVFEST LAGOS · 13–14 NOV 2026</span>
  </div>
 
  <h1 className="mt-6 font-[family-name:var(--font-display)] text-4xl leading-[0.9] font-extrabold tracking-tight uppercase sm:text-6xl">
@@ -34,7 +34,7 @@ export default function Home() {
  <br />
  Lagos traffic
  <br />
- <span className="mt-1.5 inline-block -rotate-1 border-2 border-ink bg-core-amber px-3 pt-1 pb-2 leading-none">
+ <span className="mt-1.5 inline-block -rotate-3 whitespace-nowrap border-2 border-ink bg-google-blue px-3 pt-1 pb-2 text-[clamp(1.5rem,4vw,3rem)] leading-none">
  before the keynote?
  </span>
  </h1>
@@ -42,7 +42,7 @@ export default function Home() {
  <div className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
  <Link
  href="/play"
- className="df-btn df-btn-primary px-10 py-5 text-xl"
+ className="df-btn df-btn-accent px-10 py-5 text-xl"
  >
  Start Driving →
  </Link>
