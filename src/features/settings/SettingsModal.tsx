@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from"react";
+import { createPortal } from"react-dom";
 import { useSettings, type AppSettings } from"./useSettings";
 import { gameAudio } from"@/game/systems/audio";
 
@@ -25,13 +26,16 @@ export function SettingsModal({ onClose }: Props) {
  const closeRef = useRef<HTMLButtonElement>(null);
 
  useEffect(() => {
- closeRef.current?.focus();
  const onKey = (e: KeyboardEvent) => {
  if (e.key ==="Escape") onClose();
  };
  window.addEventListener("keydown", onKey);
  return () => window.removeEventListener("keydown", onKey);
  }, [onClose]);
+
+ useEffect(() => {
+ closeRef.current?.focus();
+ }, []);
 
  const toggle = (key: keyof AppSettings) => {
  const next = !settings[key];
@@ -40,9 +44,11 @@ export function SettingsModal({ onClose }: Props) {
  if (key ==="sfx") gameAudio.setSfxOn(next);
  };
 
- return (
+ if (typeof document ==="undefined") return null;
+
+ return createPortal(
  <div
- className="anim-pop-in fixed inset-0 z-50 flex items-center justify-center bg-[#201209]/70 p-4 backdrop-blur-sm"
+ className="anim-pop-in fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/75 p-4 backdrop-blur-sm sm:p-6"
  role="dialog"
  aria-modal="true"
  aria-labelledby="settings-title"
@@ -50,8 +56,8 @@ export function SettingsModal({ onClose }: Props) {
  if (e.target === e.currentTarget) onClose();
  }}
  >
- <div className="df-card df-shadow-lg w-full max-w-sm overflow-hidden">
- <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4">
+ <div className="df-card df-shadow-lg my-auto flex max-h-[calc(100dvh-2rem)] w-full max-w-sm flex-col overflow-hidden border-ink/35">
+ <div className="flex shrink-0 items-center justify-between border-b border-ink/15 bg-surface-2 px-5 py-4">
  <h2
  id="settings-title"
  className="font-[family-name:var(--font-display)] text-2xl font-semibold"
@@ -68,7 +74,7 @@ export function SettingsModal({ onClose }: Props) {
  </button>
  </div>
 
- <div className="p-5">
+ <div className="overflow-y-auto p-5">
  <ul className="space-y-3">
  {OPTIONS.map((o) => (
  <li key={o.key} className="flex items-center justify-between gap-3">
@@ -102,6 +108,7 @@ export function SettingsModal({ onClose }: Props) {
  </p>
  </div>
  </div>
- </div>
+ </div>,
+ document.body,
  );
 }

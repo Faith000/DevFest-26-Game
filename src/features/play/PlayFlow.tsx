@@ -262,7 +262,7 @@ export function PlayFlow() {
   if (stage === "setup") {
     return (
       <main className="dot-grid flex min-h-dvh items-center justify-center">
-        <PlayerSetup initial={profile} onDone={handleSetupDone} />
+        <PlayerSetup initial={profile} onBack={() => router.push("/")} onDone={handleSetupDone} />
       </main>
     );
   }

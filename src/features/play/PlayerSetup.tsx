@@ -6,10 +6,11 @@ import type { PlayerProfile } from "@/features/player/useProfile";
 
 interface Props {
   initial: PlayerProfile | null;
+  onBack: () => void;
   onDone: (profile: PlayerProfile) => void;
 }
 
-export function PlayerSetup({ initial, onDone }: Props) {
+export function PlayerSetup({ initial, onBack, onDone }: Props) {
   const [name, setName] = useState(initial?.displayName ?? "");
   const [error, setError] = useState<string | null>(null);
 
@@ -25,6 +26,14 @@ export function PlayerSetup({ initial, onDone }: Props) {
 
   return (
     <div className="anim-pop-in mx-auto w-full max-w-md px-4 py-10">
+      <button
+        type="button"
+        onClick={onBack}
+        className="df-btn df-btn-secondary mb-6 px-4 py-2 text-sm"
+      >
+        ← Back
+      </button>
+
       <p className="df-label text-core-red">Driver registration</p>
       <h1 className="mt-1 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight">
         Who&apos;s driving today?

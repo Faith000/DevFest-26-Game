@@ -9,8 +9,8 @@ export function Footer() {
  Escape the Lagos Tech Traffic
  </p>
  <p className="mt-2 max-w-md text-sm text-white/60">
- A fan-made promotional game for {site.eventName}, the Google
- Developer Groups Lagos community-led tech conference.
+ A promotional game for {site.eventName}, the Google Developer Groups
+ Lagos community-led tech conference.
  </p>
  </div>
  <div className="flex flex-col gap-2.5 sm:items-end">

@@ -12,17 +12,6 @@ export default function Home() {
  <Header />
 
  <main className="dot-grid sunset-glow relative flex flex-1 items-center overflow-hidden">
- {/* playful floating blobs */}
- <span
- aria-hidden
- className="anim-float pointer-events-none absolute top-24 right-[8%] hidden h-16 w-16 border-2 border-ink bg-pop-pink lg:block"
- />
- <span
- aria-hidden
- className="anim-float pointer-events-none absolute bottom-40 left-[3%] hidden h-10 w-10 border-2 border-ink bg-pop-purple lg:block"
- style={{ animationDelay:"1.2s" }}
- />
-
  <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 lg:grid-cols-[1.05fr_0.95fr]">
  <div className="anim-pop-in">
  <div className="flex flex-wrap items-center gap-2">
