@@ -1,115 +1,226 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #1e1e1e;
-  --color-paper: #f0f0f0;
-  --color-core-red: #ea4335;
-  --color-core-blue: #4285f4;
-  --color-core-green: #34a853;
-  --color-core-amber: #f9ab00;
-  --color-pastel-yellow: #ffe7a5;
-  --color-pastel-blue: #c3ecf6;
-  --color-pastel-green: #ccf6c5;
-  --color-pastel-pink: #f8d8d8;
+  /* "Have Fun" — a bright, playful, retro-party light theme (inspired by
+     hurryupandhavefun.com). Deliberately unlike the DevFest site's flat
+     Google-colour / hard-edged system: warm cream paper, rich cocoa ink, a
+     saturated pop palette (hot pink, periwinkle, marigold, grape, olive,
+     tangerine), fat chunky display type, rounded pills and playful colour
+     blocks. */
+  --color-ink: #121212;
+  --color-ink-soft: #565656;
+  --color-paper: #fbf5e9;
+  --color-paper-deep: #2a1305;
+  --color-surface: #ffffff;
+  --color-surface-2: #fdf1dc;
 
+  /* semantic cores, remapped to the pop palette */
+  --color-core-red: #f2683f; /* tangerine */
+  --color-core-blue: #6b8fe8; /* periwinkle */
+  --color-core-green: #8a9a1f; /* olive */
+  --color-core-amber: #ffc73f; /* marigold */
+
+  /* extra playful pops (decorative) */
+  --color-pop-pink: #fb6aa8;
+  --color-pop-purple: #a45afe;
+  --color-pop-blue: #6b8fe8;
+  --color-pop-yellow: #ffc73f;
+
+  /* light tints for chips / rows / highlights */
+  --color-pastel-yellow: #ffe6a3;
+  --color-pastel-blue: #dbe8ff;
+  --color-pastel-green: #eaeec2;
+  --color-pastel-pink: #ffd8e7;
+
+  --font-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
   --font-grotesk: "Space Grotesk", ui-sans-serif, sans-serif;
   --font-body: "Inter", ui-sans-serif, sans-serif;
-  --font-mono-df: "Space Mono", ui-monospace, monospace;
+  --font-mono-df: "Space Grotesk", ui-sans-serif, sans-serif;
 }
 
 :root {
-  --ink: #1e1e1e;
-  --paper: #f0f0f0;
+  --ink: #121212;
+  --paper: #fbf5e9;
+  --surface: #ffffff;
+  /* declared here (not only in @theme) so it is never tree-shaken */
+  --font-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+  color-scheme: light;
 }
 
 html {
   background: var(--paper);
+  scroll-behavior: smooth;
 }
 
 body {
   color: var(--ink);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* ------- DevFest Lagos component language ------- */
 
 .df-border {
-  border: 2px solid var(--ink);
+  border: 1.5px solid var(--ink);
+  border-radius: 0;
 }
 
 .df-shadow {
-  box-shadow: 3px 3px 0 0 var(--ink);
+  box-shadow: 0 6px 16px -4px rgba(18, 18, 18, 0.28);
 }
 
 .df-shadow-lg {
-  box-shadow: 5px 5px 0 0 var(--ink);
+  box-shadow: 0 18px 38px -10px rgba(18, 18, 18, 0.32);
+}
+
+/* soft coloured glows for accent cards (opt-in) */
+.df-shadow-red {
+  box-shadow: 0 12px 26px -8px rgba(242, 104, 63, 0.5);
+}
+.df-shadow-blue {
+  box-shadow: 0 12px 26px -8px rgba(107, 143, 232, 0.5);
+}
+.df-shadow-green {
+  box-shadow: 0 12px 26px -8px rgba(138, 154, 31, 0.45);
+}
+.df-shadow-amber {
+  box-shadow: 0 12px 26px -8px rgba(255, 199, 63, 0.55);
+}
+.df-shadow-pink {
+  box-shadow: 0 12px 26px -8px rgba(251, 106, 168, 0.5);
 }
 
 .dot-grid {
-  background-image: radial-gradient(rgba(30, 30, 30, 0.13) 1.5px, transparent 1.5px);
-  background-size: 24px 24px;
+  background-color: var(--paper);
+}
+
+/* playful colour wash — decorative backdrop for hero-style sections */
+.sunset-glow {
+  position: relative;
+}
+.sunset-glow::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  z-index: -1;
+  background:
+    radial-gradient(40% 46% at 84% 10%, rgba(255, 199, 63, 0.4), transparent 70%),
+    radial-gradient(34% 40% at 6% 82%, rgba(251, 106, 168, 0.24), transparent 70%),
+    radial-gradient(30% 34% at 96% 92%, rgba(107, 143, 232, 0.22), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
 }
 
 .df-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
-  border: 2px solid var(--ink);
-  box-shadow: 3px 3px 0 0 var(--ink);
+  border: 1.5px solid var(--ink);
+  border-radius: 0;
+  box-shadow: 0 6px 16px -4px rgba(18, 18, 18, 0.28);
   padding: 0.75rem 1.25rem;
   font-family: var(--font-grotesk);
   font-weight: 700;
-  transition: transform 100ms, box-shadow 100ms;
+  letter-spacing: 0.01em;
+  transition:
+    transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 160ms ease;
 }
 
 .df-btn:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 0 var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -6px rgba(18, 18, 18, 0.36);
 }
 
 .df-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 0 var(--ink);
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 4px 10px -4px rgba(18, 18, 18, 0.3);
 }
 
 .df-btn-primary {
   background: var(--ink);
-  color: #ffffff;
+  color: var(--paper);
 }
 
 .df-btn-secondary {
-  background: #ffffff;
+  background: var(--color-surface);
   color: var(--ink);
+}
+
+/* bold coloured button (opt-in) — always dark text on the bright marigold */
+.df-btn-accent {
+  background: var(--color-core-amber);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .df-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  border: 2px solid var(--ink);
-  padding: 0.25rem 0.625rem;
+  border: 1.5px solid var(--ink);
+  border-radius: 0;
+  padding: 0.3rem 0.75rem;
   font-family: var(--font-mono-df);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .df-card {
-  border: 2px solid var(--ink);
-  box-shadow: 5px 5px 0 0 var(--ink);
-  background: #ffffff;
+  border: 1.5px solid rgba(18, 18, 18, 0.14);
+  box-shadow: 0 18px 38px -10px rgba(18, 18, 18, 0.32);
+  background: var(--color-surface);
+  border-radius: 0;
 }
 
 .df-label {
-  font-family: var(--font-mono-df);
+  font-family: var(--font-grotesk);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
+}
+
+/* subtle hover lift for cards/links that opt in */
+.hover-lift {
+  transition:
+    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 200ms ease;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 30px -8px rgba(18, 18, 18, 0.35);
+}
+
+/* ------- motifs ------- */
+
+/* checkerboard finish-line accent (periwinkle on cream, like the reference) */
+.checker {
+  background-image:
+    linear-gradient(45deg, var(--color-pop-blue) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-pop-blue) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-pop-blue) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-pop-blue) 75%);
+  background-size: 14px 14px;
+  background-position: 0 0, 0 7px, 7px -7px, -7px 0;
+}
+
+/* a full-width checkerboard strip divider (2 rows tall) */
+.checker-strip {
+  height: 28px;
+  background-image:
+    linear-gradient(45deg, var(--color-pop-blue) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-pop-blue) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-pop-blue) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-pop-blue) 75%);
+  background-size: 28px 28px;
+  background-position: 0 0, 0 14px, 14px -14px, -14px 0;
 }
 
 /* accessible focus */
@@ -130,6 +241,10 @@ body {
 .pref-high-contrast .df-card {
   border-width: 3px;
 }
+.pref-high-contrast {
+  --paper: #ffffff;
+  --ink: #000000;
+}
 
 /* hero preview: reveal the Start Driving CTA on hover / keyboard focus */
 .preview-cta {
@@ -141,8 +256,49 @@ body {
   opacity: 1;
 }
 
+/* ------- motion keyframes ------- */
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.anim-float {
+  animation: float-y 4s ease-in-out infinite;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.anim-pop-in {
+  animation: pop-in 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes sheen {
+  from {
+    background-position: -150% 0;
+  }
+  to {
+    background-position: 250% 0;
+  }
+}
+
 /* reduced motion: kill decorative animation globally */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
@@ -169,18 +325,16 @@ body {
 
 /* skeleton shimmer */
 .skeleton {
-  border: 2px solid var(--ink);
-  background: #e3e3e3;
-  animation: pulse 1.6s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.55;
-  }
+  border: 1.5px solid rgba(18, 18, 18, 0.14);
+  border-radius: 0;
+  background: linear-gradient(
+    100deg,
+    #f2e6cf 30%,
+    #fbf5e9 50%,
+    #f2e6cf 70%
+  );
+  background-size: 200% 100%;
+  animation: sheen 1.6s ease-in-out infinite;
 }
 
 /* marquee ticker (landing) */

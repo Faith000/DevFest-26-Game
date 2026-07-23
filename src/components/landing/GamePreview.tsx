@@ -71,18 +71,19 @@ export function GamePreview() {
         </svg>
       </div>
 
-      {/* HUD chrome */}
-      <div className="df-border absolute top-3 left-3 bg-white px-2 py-1">
+      {/* HUD chrome — pinned to the in-game (light) HUD colours so the
+          preview reads as a screenshot of the game regardless of site theme */}
+      <div className="absolute top-3 left-3 border-2 border-[#1a1a1e] bg-white px-2 py-1 text-[#1a1a1e]">
         <p className="font-[family-name:var(--font-mono-df)] text-[8px] font-bold tracking-wider">SCORE</p>
         <p className="font-[family-name:var(--font-grotesk)] text-sm leading-none font-bold">12,480</p>
       </div>
-      <div className="df-border absolute top-3 right-3 bg-ink px-2 py-1.5">
+      <div className="absolute top-3 right-3 border-2 border-[#1a1a1e] bg-[#1a1a1e] px-2 py-1.5">
         <p className="font-[family-name:var(--font-mono-df)] text-[9px] font-bold tracking-wider text-white">
           KEYNOTE 00:47
         </p>
       </div>
       <div
-        className="df-border absolute bottom-3 left-3 bg-pastel-yellow px-2 py-1"
+        className="absolute bottom-3 left-3 border-2 border-[#1a1a1e] bg-[#ffe7a5] px-2 py-1 text-[#1a1a1e]"
         style={{ animation: "preview-bob 2s ease-in-out infinite" }}
       >
         <p className="font-[family-name:var(--font-mono-df)] text-[9px] font-bold tracking-wider">
@@ -91,7 +92,7 @@ export function GamePreview() {
       </div>
 
       {/* hover / focus CTA overlay (see .preview-cta in globals.css) */}
-      <div className="preview-cta pointer-events-none absolute inset-0 flex items-center justify-center bg-ink/45 backdrop-blur-[1px]">
+      <div className="preview-cta pointer-events-none absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-[1px]">
         <span className="df-btn df-btn-primary px-6 py-3.5 text-lg">
           Start Driving →
         </span>

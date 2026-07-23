@@ -19,53 +19,62 @@ export function TopThree() {
   }, []);
 
   return (
-    <div className="df-card p-4">
-      <div className="flex items-center justify-between">
-        <p className="df-label">THIS WEEK&apos;S FASTEST</p>
-        <Link href="/leaderboard" className="df-label text-core-blue hover:underline">
-          ALL →
+    <div className="df-card overflow-hidden">
+      <div className="flex items-center justify-between border-b-2 border-ink bg-pastel-blue px-4 py-2.5">
+        <p className="df-label">This week&apos;s fastest</p>
+        <Link
+          href="/leaderboard"
+          className="df-label text-ink underline-offset-2 hover:underline"
+        >
+          All →
         </Link>
       </div>
 
-      {failed && (
-        <p className="mt-3 text-sm text-ink/60">
-          The leaderboard is stuck in traffic. It&apos;ll catch up.
-        </p>
-      )}
+      <div className="p-3">
+        {failed && (
+          <p className="px-1 py-2 text-sm text-ink-soft">
+            The leaderboard is stuck in traffic. It&apos;ll catch up.
+          </p>
+        )}
 
-      {!failed && entries === null && (
-        <div className="mt-3 space-y-2" aria-hidden>
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="skeleton h-9 w-full" />
-          ))}
-        </div>
-      )}
+        {!failed && entries === null && (
+          <div className="space-y-2" aria-hidden>
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="skeleton h-10 w-full" />
+            ))}
+          </div>
+        )}
 
-      {!failed && entries !== null && entries.length === 0 && (
-        <p className="mt-3 text-sm text-ink/60">
-          Nobody has beaten the traffic yet. The podium is wide open.
-        </p>
-      )}
+        {!failed && entries !== null && entries.length === 0 && (
+          <p className="px-1 py-2 text-sm text-ink-soft">
+            Nobody has beaten the traffic yet. The podium is wide open.
+          </p>
+        )}
 
-      {!failed && entries !== null && entries.length > 0 && (
-        <ol className="mt-3 space-y-2">
-          {entries.map((e, i) => (
-            <li
-              key={e.playerId}
-              className="df-border flex items-center gap-2 bg-paper px-2.5 py-1.5"
-            >
-              <span aria-hidden>{MEDALS[i]}</span>
-              <span aria-hidden>{e.avatar}</span>
-              <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-grotesk)] text-sm font-bold">
-                {e.displayName}
-              </span>
-              <span className="font-[family-name:var(--font-mono-df)] text-xs font-bold tabular-nums">
-                {e.score.toLocaleString()}
-              </span>
-            </li>
-          ))}
-        </ol>
-      )}
+        {!failed && entries !== null && entries.length > 0 && (
+          <ol className="space-y-2">
+            {entries.map((e, i) => (
+              <li
+                key={e.playerId}
+                className="df-border flex items-center gap-2.5 bg-paper px-3 py-2"
+              >
+                <span aria-hidden className="text-base">
+                  {MEDALS[i]}
+                </span>
+                <span aria-hidden className="text-lg">
+                  {e.avatar}
+                </span>
+                <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-grotesk)] text-sm font-bold">
+                  {e.displayName}
+                </span>
+                <span className="font-[family-name:var(--font-mono-df)] text-sm font-bold tabular-nums">
+                  {e.score.toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
     </div>
   );
 }

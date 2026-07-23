@@ -1,49 +1,83 @@
-import Link from "next/link";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { GamePreview } from "@/components/landing/GamePreview";
-import { TopThree } from "@/components/landing/TopThree";
-import { LandingAnalytics } from "@/components/landing/LandingAnalytics";
+import Link from"next/link";
+import { Header } from"@/components/layout/Header";
+import { Footer } from"@/components/layout/Footer";
+import { GamePreview } from"@/components/landing/GamePreview";
+import { TopThree } from"@/components/landing/TopThree";
+import { LandingAnalytics } from"@/components/landing/LandingAnalytics";
 
 export default function Home() {
-  return (
-    <div className="flex min-h-dvh flex-col">
-      <LandingAnalytics />
-      <Header />
+ return (
+ <div className="flex min-h-dvh flex-col">
+ <LandingAnalytics />
+ <Header />
 
-      <main className="dot-grid flex flex-1 items-center">
-        <section className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
-            <span className="df-chip bg-pastel-yellow">
-              DEVFEST LAGOS · 13–14 NOV 2026
-            </span>
-            <h1 className="mt-5 font-[family-name:var(--font-grotesk)] text-4xl leading-[1.05] font-bold tracking-tight uppercase sm:text-6xl">
-              Can you beat Lagos traffic{" "}
-              <span className="text-core-red">before the keynote starts?</span>
-            </h1>
+ <main className="dot-grid sunset-glow relative flex flex-1 items-center overflow-hidden">
+ {/* playful floating blobs */}
+ <span
+ aria-hidden
+ className="anim-float pointer-events-none absolute top-24 right-[8%] hidden h-16 w-16 border-2 border-ink bg-pop-pink lg:block"
+ />
+ <span
+ aria-hidden
+ className="anim-float pointer-events-none absolute bottom-40 left-[3%] hidden h-10 w-10 border-2 border-ink bg-pop-purple lg:block"
+ style={{ animationDelay:"1.2s" }}
+ />
 
-            <div className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-              <Link href="/play" className="df-btn df-btn-primary px-10 py-5 text-xl">
-                Start Driving →
-              </Link>
-              <Link href="/leaderboard" className="df-btn df-btn-secondary px-6 py-4">
-                View Leaderboard
-              </Link>
-            </div>
+ <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 lg:grid-cols-[1.05fr_0.95fr]">
+ <div className="anim-pop-in">
+ <div className="flex flex-wrap items-center gap-2">
+ <span className="df-chip bg-pastel-yellow">DEVFEST LAGOS · 13–14 NOV 2026</span>
+ </div>
 
-            <p className="df-label mt-7 text-ink/50">
-              PICK A RIDE · DODGE LAGOS TRAFFIC · BEAT THE KEYNOTE · 90 SECONDS
-            </p>
-          </div>
+ <h1 className="mt-6 font-[family-name:var(--font-display)] text-4xl leading-[0.9] font-extrabold tracking-tight uppercase sm:text-6xl">
+ Can you beat
+ <br />
+ Lagos traffic
+ <br />
+ <span className="mt-1.5 inline-block -rotate-1 border-2 border-ink bg-core-amber px-3 pt-1 pb-2 leading-none">
+ before the keynote?
+ </span>
+ </h1>
 
-          <div className="space-y-4">
-            <GamePreview />
-            <TopThree />
-          </div>
-        </section>
-      </main>
+ <div className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
+ <Link
+ href="/play"
+ className="df-btn df-btn-primary px-10 py-5 text-xl"
+ >
+ Start Driving →
+ </Link>
+ <Link href="/leaderboard" className="df-btn df-btn-secondary px-6 py-4">
+ View Leaderboard
+ </Link>
+ </div>
 
-      <Footer />
-    </div>
-  );
+ <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
+ {[
+ ["🏎️","Pick a ride"],
+ ["🐞","Dodge traffic"],
+ ["🏁","Beat the keynote"],
+ ["⏱️","90 seconds"],
+ ].map(([icon, label]) => (
+ <span key={label} className="df-label flex items-center gap-1.5 text-ink-soft">
+ <span aria-hidden className="text-sm">
+ {icon}
+ </span>
+ {label}
+ </span>
+ ))}
+ </div>
+ </div>
+
+ <div className="space-y-4 anim-pop-in">
+ <GamePreview />
+ <TopThree />
+ </div>
+ </section>
+
+ <div className="checker-strip absolute bottom-0 left-0 w-full" aria-hidden />
+ </main>
+
+ <Footer />
+ </div>
+ );
 }

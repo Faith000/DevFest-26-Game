@@ -277,7 +277,7 @@ export function PlayFlow() {
 
   // game + results share a mount so replays never reload the game
   return (
-    <main className="relative h-dvh w-full overflow-hidden bg-ink">
+    <main className="relative h-dvh w-full overflow-hidden bg-paper-deep">
       <PhaserGame
         ref={gameRef}
         config={gameConfig(vehicle)}

@@ -25,63 +25,67 @@ export function PlayerSetup({ initial, onDone }: Props) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-8">
-      <p className="df-label text-core-red">DRIVER REGISTRATION</p>
-      <h1 className="mt-1 font-[family-name:var(--font-grotesk)] text-3xl font-bold">
+    <div className="anim-pop-in mx-auto w-full max-w-md px-4 py-10">
+      <p className="df-label text-core-red">Driver registration</p>
+      <h1 className="mt-1 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight">
         Who&apos;s driving today?
       </h1>
 
-      <form onSubmit={submit} className="df-card mt-6 space-y-5 p-5">
-        <div>
-          <label htmlFor="displayName" className="df-label block">
-            Driver name
-          </label>
-          <p className="mt-1 text-xs text-ink/60">
-            This is the name the leaderboard will show.
-          </p>
-          <input
-            id="displayName"
-            type="text"
-            value={name}
-            maxLength={20}
-            autoComplete="off"
-            onChange={(e) => {
-              setName(e.target.value);
-              setError(null);
-            }}
-            placeholder="e.g. AsyncAwesomeAda"
-            className="df-border mt-2 w-full bg-paper px-3 py-2.5 font-[family-name:var(--font-grotesk)] font-bold placeholder:font-normal placeholder:text-ink/40"
-          />
-          {error && (
-            <p role="alert" className="mt-2 text-sm font-semibold text-core-red">
-              {error}
+      <form onSubmit={submit} className="df-card df-shadow-lg mt-6 overflow-hidden">
+        <div className="space-y-5 p-5">
+          <div>
+            <label htmlFor="displayName" className="df-label block">
+              Driver name
+            </label>
+            <p className="mt-1 text-xs text-ink-soft">
+              This is the name the leaderboard will show.
             </p>
-          )}
-        </div>
-
-        <fieldset>
-          <legend className="df-label">Avatar</legend>
-          <div className="mt-2 grid grid-cols-6 gap-2">
-            {AVATARS.map((a) => (
-              <button
-                key={a}
-                type="button"
-                onClick={() => setAvatar(a)}
-                aria-pressed={avatar === a}
-                aria-label={`Avatar ${a}`}
-                className={`df-border flex aspect-square items-center justify-center text-xl transition-colors ${
-                  avatar === a ? "df-shadow bg-pastel-yellow" : "bg-white hover:bg-paper"
-                }`}
-              >
-                {a}
-              </button>
-            ))}
+            <input
+              id="displayName"
+              type="text"
+              value={name}
+              maxLength={20}
+              autoComplete="off"
+              onChange={(e) => {
+                setName(e.target.value);
+                setError(null);
+              }}
+              placeholder="e.g. AsyncAwesomeAda"
+              className="df-border mt-2 w-full bg-paper px-4 py-3 font-[family-name:var(--font-grotesk)] text-lg font-bold transition-shadow placeholder:font-normal placeholder:text-ink/35 focus:shadow-[0_0_0_4px_rgba(29,140,126,0.25)] focus:outline-none"
+            />
+            {error && (
+              <p role="alert" className="mt-2 text-sm font-semibold text-core-red">
+                {error}
+              </p>
+            )}
           </div>
-        </fieldset>
 
-        <button type="submit" className="df-btn df-btn-primary w-full text-base">
-          Choose Your Ride →
-        </button>
+          <fieldset>
+            <legend className="df-label">Pick an avatar</legend>
+            <div className="mt-2 grid grid-cols-6 gap-2">
+              {AVATARS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setAvatar(a)}
+                  aria-pressed={avatar === a}
+                  aria-label={`Avatar ${a}`}
+                  className={`df-border flex aspect-square items-center justify-center text-xl transition-all ${
+                    avatar === a
+                      ? "-translate-y-0.5 bg-pastel-yellow df-shadow"
+                      : "bg-surface hover:bg-paper"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <button type="submit" className="df-btn df-btn-accent w-full py-4 text-base">
+            Choose Your Ride →
+          </button>
+        </div>
       </form>
     </div>
   );

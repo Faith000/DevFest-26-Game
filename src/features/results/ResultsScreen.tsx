@@ -41,9 +41,11 @@ function headline(p: RunFinishedPayload, isNewBest: boolean, weeklyRank: number 
 
 function StatCell({ label, value }: { label: string; value: string }) {
   return (
-    <div className="df-border bg-white px-3 py-2">
-      <p className="df-label text-[9px] text-ink/60">{label}</p>
-      <p className="font-[family-name:var(--font-grotesk)] text-lg font-bold">{value}</p>
+    <div className="df-border bg-surface px-3 py-2.5">
+      <p className="df-label text-[9px] text-ink-soft">{label}</p>
+      <p className="mt-0.5 font-[family-name:var(--font-grotesk)] text-xl font-bold tabular-nums">
+        {value}
+      </p>
     </div>
   );
 }
@@ -69,45 +71,57 @@ export function ResultsScreen({
     stats.collectibles.badge;
 
   return (
-    <div className="dot-grid absolute inset-0 z-20 overflow-y-auto bg-paper/97">
-      <div className="mx-auto w-full max-w-lg px-4 py-8 pb-16">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className={`df-chip ${arrived ? "bg-pastel-green" : "bg-pastel-pink"}`}>
-              {arrived ? "● ARRIVED AT DEVFEST" : stats.result === "timeout" ? "● KEYNOTE STARTED" : "● VEHICLE WRECKED"}
-            </p>
-            <h1 className="mt-3 font-[family-name:var(--font-grotesk)] text-3xl font-bold leading-tight">
-              {arrived ? "You Made It to DevFest Lagos" : "So Close. So Lagos."}
-            </h1>
-            <p className="mt-2 text-sm text-ink/70">{headline(payload, isNewBest, weeklyRank)}</p>
-          </div>
+    <div className="dot-grid absolute inset-0 z-20 overflow-y-auto bg-paper/98 backdrop-blur-sm">
+      <div className="anim-pop-in mx-auto w-full max-w-lg px-4 py-10 pb-16">
+        <div>
+          <span
+            className={`df-chip ${arrived ? "bg-core-green text-white" : "bg-core-red text-white"}`}
+          >
+            {arrived ? "● ARRIVED AT DEVFEST" : stats.result === "timeout" ? "● KEYNOTE STARTED" : "● VEHICLE WRECKED"}
+          </span>
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl">
+            {arrived ? (
+              <>
+                You made it to <span className="text-core-red italic">DevFest Lagos</span>
+              </>
+            ) : (
+              <>
+                So close. <span className="text-core-red italic">So Lagos.</span>
+              </>
+            )}
+          </h1>
+          <p className="mt-2 text-sm text-ink-soft">{headline(payload, isNewBest, weeklyRank)}</p>
         </div>
 
-        <div className="df-card mt-6 p-5">
-          <div className="flex items-end justify-between">
+        <div className="df-card df-shadow-lg mt-6 overflow-hidden">
+          <div className="flex items-end justify-between p-5">
             <div>
-              <p className="df-label text-ink/60">FINAL SCORE</p>
-              <p className="font-[family-name:var(--font-grotesk)] text-5xl font-bold tabular-nums">
+              <p className="df-label text-ink-soft">Final score</p>
+              <p className="font-[family-name:var(--font-grotesk)] text-6xl leading-none font-bold tabular-nums">
                 {breakdown.total.toLocaleString()}
               </p>
             </div>
             <div className="text-right">
-              <p className="df-label text-ink/60">PERSONAL BEST</p>
+              <p className="df-label text-ink-soft">Personal best</p>
               <p className="font-[family-name:var(--font-grotesk)] text-2xl font-bold tabular-nums">
                 {Math.max(bestScore, breakdown.total).toLocaleString()}
-                {isNewBest && <span className="ml-1 align-middle text-xs text-core-green">▲ NEW</span>}
               </p>
+              {isNewBest && (
+                <span className="df-chip mt-1 bg-core-green px-1.5 py-0 text-[9px] text-white">
+                  ▲ NEW BEST
+                </span>
+              )}
             </div>
           </div>
 
           {submission.status === "done" && (
-            <div className="df-border mt-4 flex items-center justify-between bg-pastel-blue px-3 py-2 text-sm font-semibold">
+            <div className="flex items-center justify-between border-t-2 border-ink bg-pastel-blue px-4 py-2.5 text-sm font-bold">
               <span>
-                Weekly rank #{submission.result.weeklyRank ?? "—"} · All-time #
+                Weekly #{submission.result.weeklyRank ?? "—"} · All-time #
                 {submission.result.allTimeRank ?? "—"}
               </span>
-              <Link href="/leaderboard" className="underline">
-                View
+              <Link href="/leaderboard" className="underline underline-offset-2">
+                View →
               </Link>
             </div>
           )}
@@ -125,7 +139,7 @@ export function ResultsScreen({
         {/* submission area — scores record automatically, no button */}
         <div className="mt-5">
           {(submission.status === "idle" || submission.status === "submitting") && (
-            <div className="df-border w-full bg-white px-4 py-3 text-center text-sm font-semibold" role="status">
+            <div className="df-border w-full bg-surface px-4 py-3 text-center text-sm font-semibold" role="status">
               Recording your score…
             </div>
           )}
@@ -146,7 +160,7 @@ export function ResultsScreen({
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <button onClick={onPlayAgain} className="df-btn df-btn-primary col-span-2 py-4 text-lg">
+          <button onClick={onPlayAgain} className="df-btn df-btn-accent col-span-2 py-4 text-lg">
             ↻ Play Again
           </button>
           <button onClick={onChangeVehicle} className="df-btn df-btn-secondary">
