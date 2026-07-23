@@ -37,11 +37,12 @@ export default function Home() {
  Can you beat
  <br />
  Lagos traffic
- <br />
- <span className="hero-stamp mt-4 block w-fit -rotate-3 whitespace-nowrap border-2 border-ink bg-google-blue px-3 pt-1 pb-2 text-[clamp(1.5rem,4vw,3rem)] leading-none sm:mt-5">
+ </h1>
+ <div className="mt-6 flow-root">
+ <span className="hero-stamp block w-fit max-w-full -rotate-3 whitespace-normal border-2 border-ink bg-google-blue px-3 pt-1 pb-2 font-[family-name:var(--font-display)] text-[clamp(1.5rem,4vw,3rem)] leading-none font-extrabold uppercase sm:whitespace-nowrap">
  before the keynote?
  </span>
- </h1>
+ </div>
 
  <div className="hero-load hero-load-3 mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
  <Link
