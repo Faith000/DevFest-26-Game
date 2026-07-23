@@ -95,14 +95,14 @@ export function LeaderboardView() {
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-10 pb-16">
       <div className="flex items-center gap-3">
-        <span className="checker h-8 w-8 border-2 border-ink" aria-hidden />
+        <span className="checker checker-white h-8 w-8 border-2 border-ink" aria-hidden />
         <p className="df-label text-core-red">Hall of Speed</p>
       </div>
       <h1 className="mt-2 font-[family-name:var(--font-display)] text-5xl font-semibold tracking-tight">
         Leaderboard
       </h1>
       <p className="mt-2 text-sm text-ink-soft">
-        Only verified runs count. Only the top 50 drivers will be displayed.
+        The top 50 drivers will be displayed here and only your best score will be recorded.
       </p>
 
       {/* personal rank card */}

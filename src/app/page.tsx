@@ -5,6 +5,21 @@ import { GamePreview } from"@/components/landing/GamePreview";
 import { TopThree } from"@/components/landing/TopThree";
 import { LandingAnalytics } from"@/components/landing/LandingAnalytics";
 
+function TrafficConeIcon() {
+ return (
+ <svg
+ viewBox="0 0 20 20"
+ className="h-4 w-4"
+ aria-hidden
+ focusable="false"
+ >
+ <path d="M8.2 2.5h3.6l3 13H5.2l3-13Z" fill="#f97316" stroke="#f5f5f5" strokeWidth="1.2" />
+ <path d="M7.5 6.5h5M6.5 11h7" stroke="#f5f5f5" strokeWidth="1.6" strokeLinecap="square" />
+ <path d="M3.5 17h13" stroke="#f5f5f5" strokeWidth="2" strokeLinecap="square" />
+ </svg>
+ );
+}
+
 export default function Home() {
  return (
  <div className="flex min-h-dvh flex-col">
@@ -23,7 +38,7 @@ export default function Home() {
  <br />
  Lagos traffic
  <br />
- <span className="hero-stamp mt-1.5 inline-block -rotate-3 whitespace-nowrap border-2 border-ink bg-google-blue px-3 pt-1 pb-2 text-[clamp(1.5rem,4vw,3rem)] leading-none">
+ <span className="hero-stamp mt-4 block w-fit -rotate-3 whitespace-nowrap border-2 border-ink bg-google-blue px-3 pt-1 pb-2 text-[clamp(1.5rem,4vw,3rem)] leading-none sm:mt-5">
  before the keynote?
  </span>
  </h1>
@@ -42,15 +57,15 @@ export default function Home() {
 
  <div className="hero-load hero-load-4 mt-8 flex flex-wrap items-center gap-x-3 gap-y-2">
  {[
- ["🏎️","Pick a ride"],
- ["🐞","Dodge traffic"],
- ["🏁","Beat the keynote"],
- ["⏱️","90 seconds"],
- ].map(([icon, label], index) => (
+ { icon:"🏎️", label:"Pick a ride" },
+ { icon:<TrafficConeIcon />, label:"Dodge traffic" },
+ { icon:"🏁", label:"Beat the keynote" },
+ { icon:"⏱️", label:"90 seconds" },
+ ].map(({ icon, label }, index) => (
  <span key={label} className="df-label flex items-center gap-3 text-ink-soft">
  {index > 0 && <span aria-hidden className="h-1.5 w-1.5 bg-surface-2" />}
  <span className="flex items-center gap-1.5">
- <span aria-hidden className="text-sm">
+ <span aria-hidden className="flex h-4 w-4 items-center justify-center text-sm">
  {icon}
  </span>
  {label}

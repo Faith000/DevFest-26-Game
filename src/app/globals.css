@@ -217,6 +217,14 @@ body {
   background-position: 0 0, 0 7px, 7px -7px, -7px 0;
 }
 
+.checker-white {
+  background-image:
+    linear-gradient(45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(-45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ffffff 75%),
+    linear-gradient(-45deg, transparent 75%, #ffffff 75%);
+}
+
 /* a full-width checkerboard strip divider (2 rows tall) */
 .checker-strip {
   height: 28px;
