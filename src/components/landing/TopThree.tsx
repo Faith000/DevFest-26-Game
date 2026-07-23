@@ -40,7 +40,7 @@ export function TopThree() {
         {!failed && entries === null && (
           <div className="space-y-2" aria-hidden>
             {[0, 1, 2].map((i) => (
-              <div key={i} className="skeleton h-10 w-full" />
+              <div key={i} className="skeleton skeleton-dark h-10 w-full" />
             ))}
           </div>
         )}

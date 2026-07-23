@@ -120,9 +120,9 @@ export function LeaderboardView() {
       <div className="mt-6">
         {state === "loading" && (
           <div className="space-y-2" aria-label="Loading leaderboard">
-            <div className="skeleton h-36 w-full" />
+            <div className="skeleton skeleton-dark h-36 w-full" />
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="skeleton h-12 w-full" />
+              <div key={i} className="skeleton skeleton-dark h-12 w-full" />
             ))}
           </div>
         )}

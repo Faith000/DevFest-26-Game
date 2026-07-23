@@ -18,7 +18,7 @@ export default function Home() {
  <span className="df-chip">DEVFEST LAGOS · 13–14 NOV 2026</span>
  </div>
 
- <h1 className="mt-6 font-[family-name:var(--font-display)] text-4xl leading-[0.9] font-extrabold tracking-tight uppercase sm:text-6xl">
+ <h1 className="mt-6 font-[family-name:var(--font-display)] text-4xl leading-[0.9] font-extrabold tracking-normal uppercase sm:text-6xl">
  Can you beat
  <br />
  Lagos traffic
@@ -40,18 +40,21 @@ export default function Home() {
  </Link>
  </div>
 
- <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
+ <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2">
  {[
  ["🏎️","Pick a ride"],
  ["🐞","Dodge traffic"],
  ["🏁","Beat the keynote"],
  ["⏱️","90 seconds"],
- ].map(([icon, label]) => (
- <span key={label} className="df-label flex items-center gap-1.5 text-ink-soft">
+ ].map(([icon, label], index) => (
+ <span key={label} className="df-label flex items-center gap-3 text-ink-soft">
+ {index > 0 && <span aria-hidden className="h-1.5 w-1.5 bg-surface-2" />}
+ <span className="flex items-center gap-1.5">
  <span aria-hidden className="text-sm">
  {icon}
  </span>
  {label}
+ </span>
  </span>
  ))}
  </div>
@@ -63,7 +66,7 @@ export default function Home() {
  </div>
  </section>
 
- <div className="checker-strip absolute bottom-0 left-0 w-full" aria-hidden />
+ <div className="checker-strip checker-strip-white absolute bottom-0 left-0 w-full" aria-hidden />
  </main>
 
  <Footer />
