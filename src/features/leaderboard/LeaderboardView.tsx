@@ -3,26 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { LeaderboardEntry, LeaderboardResponse } from "@/types/leaderboard";
-import type { VehicleId } from "@/types/game";
 import { fetchLeaderboard } from "@/services/api";
 import { useProfile } from "@/features/player/useProfile";
 import { track } from "@/services/analytics";
 
 type Scope = "weekly" | "alltime";
-
-const VEHICLE_BADGE: Record<VehicleId, string> = {
-  shuttle: "🚐 Shuttle",
-  danfo: "🚌 Danfo",
-  bike: "🛵 Bike",
-};
-
-function fmtDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  } catch {
-    return "";
-  }
-}
 
 const MEDALS: Record<number, string> = { 1: "🥇", 2: "🥈", 3: "🥉" };
 
@@ -50,12 +35,6 @@ function Row({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
           {entry.displayName}
           {isMe && <span className="ml-1.5 text-xs text-core-red">← you</span>}
         </span>
-      </span>
-      <span className="df-chip hidden bg-paper normal-case tracking-normal sm:inline-flex">
-        {VEHICLE_BADGE[entry.vehicleId] ?? entry.vehicleId}
-      </span>
-      <span className="hidden w-14 text-right font-[family-name:var(--font-mono-df)] text-[11px] text-ink/50 md:block">
-        {fmtDate(entry.createdAt)}
       </span>
       <span className="w-20 shrink-0 text-right font-[family-name:var(--font-mono-df)] text-sm font-bold tabular-nums">
         {entry.score.toLocaleString()}

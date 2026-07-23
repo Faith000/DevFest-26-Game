@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AVATARS } from "@/config/avatars";
+import { DEFAULT_AVATAR } from "@/config/avatars";
 import type { PlayerProfile } from "@/features/player/useProfile";
 
 interface Props {
@@ -11,7 +11,6 @@ interface Props {
 
 export function PlayerSetup({ initial, onDone }: Props) {
   const [name, setName] = useState(initial?.displayName ?? "");
-  const [avatar, setAvatar] = useState(initial?.avatar ?? AVATARS[0]);
   const [error, setError] = useState<string | null>(null);
 
   const submit = (e: React.FormEvent) => {
@@ -21,7 +20,7 @@ export function PlayerSetup({ initial, onDone }: Props) {
       setError("Pick a name between 2 and 20 characters.");
       return;
     }
-    onDone({ ...initial, displayName: trimmed, avatar });
+    onDone({ ...initial, displayName: trimmed, avatar: initial?.avatar ?? DEFAULT_AVATAR });
   };
 
   return (
@@ -58,26 +57,6 @@ export function PlayerSetup({ initial, onDone }: Props) {
             </p>
           )}
         </div>
-
-        <fieldset>
-          <legend className="df-label">Avatar</legend>
-          <div className="mt-2 grid grid-cols-6 gap-2">
-            {AVATARS.map((a) => (
-              <button
-                key={a}
-                type="button"
-                onClick={() => setAvatar(a)}
-                aria-pressed={avatar === a}
-                aria-label={`Avatar ${a}`}
-                className={`df-border flex aspect-square items-center justify-center text-xl transition-colors ${
-                  avatar === a ? "df-shadow bg-pastel-yellow" : "bg-white hover:bg-paper"
-                }`}
-              >
-                {a}
-              </button>
-            ))}
-          </div>
-        </fieldset>
 
         <button type="submit" className="df-btn df-btn-primary w-full text-base">
           Choose Your Ride →
