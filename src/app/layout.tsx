@@ -5,10 +5,29 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: `${site.gameName} — ${site.eventName}`,
   description: site.subline,
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: site.gameName,
     description: site.headline,
     type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: `${site.gameName} hero`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: site.gameName,
+    description: site.headline,
+    images: ["/og-image.png"],
   },
 };
 
