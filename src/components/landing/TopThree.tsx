@@ -61,9 +61,6 @@ export function TopThree() {
                 <span aria-hidden className="text-base">
                   {MEDALS[i]}
                 </span>
-                <span aria-hidden className="text-lg">
-                  {e.avatar}
-                </span>
                 <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-grotesk)] text-sm font-bold">
                   {e.displayName}
                 </span>
