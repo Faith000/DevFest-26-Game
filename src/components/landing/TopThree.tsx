@@ -55,7 +55,6 @@ export function TopThree() {
               className="df-border flex items-center gap-2 bg-paper px-2.5 py-1.5"
             >
               <span aria-hidden>{MEDALS[i]}</span>
-              <span aria-hidden>{e.avatar}</span>
               <span className="min-w-0 flex-1 truncate font-[family-name:var(--font-grotesk)] text-sm font-bold">
                 {e.displayName}
               </span>
