@@ -115,13 +115,9 @@ export function ResultsScreen({
           </div>
 
           {submission.status === "done" && (
-            <div className="flex items-center justify-between border-t-2 border-ink bg-pastel-blue px-4 py-2.5 text-sm font-bold">
-              <span>
-                Weekly #{submission.result.weeklyRank ?? "—"} · All-time #
-                {submission.result.allTimeRank ?? "—"}
-              </span>
+            <div className="flex justify-end border-t-2 border-ink bg-pastel-blue px-4 py-2.5 text-sm font-bold">
               <Link href="/leaderboard" className="underline underline-offset-2">
-                View →
+                Go to leaderboard →
               </Link>
             </div>
           )}
