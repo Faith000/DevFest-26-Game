@@ -82,14 +82,21 @@ export function validateRun(run: RunStats, submittedScore: number): ValidationOu
   const recomputed = computeScore(run).total;
   if (recomputed !== submittedScore) return reject("score does not match the deterministic formula");
 
-  /* ---- soft heuristics: possible but suspicious → flagged ---- */
+  /* ---- soft heuristics: only genuinely-impossible runs are flagged ----
+     The hard checks above already bound the run to real physics (distance to
+     maxMetres ≈ 41 m/s, and a ~37s floor on gameSeconds). These sit just
+     inside that wall to catch blatant outliers, NOT skilled play: arriving
+     fast and clean with lots of near-misses is exactly how a good player
+     scores high, so flagging that band silently hid legitimate high scores.
+     Thresholds are set close to the physical limits so only the near-
+     impossible is withheld. */
   const reasons: string[] = [];
   const avgSpeed = run.distance / gameSeconds; // metres/sec
-  if (avgSpeed > 30) reasons.push("sustained speed near theoretical maximum");
-  if (run.dodges > 40 && run.nearMisses / run.dodges > 0.85) {
+  if (avgSpeed > 36) reasons.push("sustained speed near theoretical maximum");
+  if (run.dodges > 40 && run.nearMisses / run.dodges > 0.97) {
     reasons.push("near-miss ratio beyond human play");
   }
-  if (run.collisions === 0 && run.result === "arrived" && gameSeconds < 55) {
+  if (run.collisions === 0 && run.result === "arrived" && gameSeconds < 40) {
     reasons.push("flawless run at implausible pace");
   }
 
