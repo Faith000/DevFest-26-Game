@@ -7,13 +7,14 @@ import { fetchLeaderboard } from "@/services/api";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
-/** Compact "top three this week" card for the landing hero. */
+/** Compact "top three drivers" card for the landing hero. */
 export function TopThree() {
   const [entries, setEntries] = useState<LeaderboardEntry[] | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    fetchLeaderboard({ scope: "weekly", limit: 3 })
+    // all-time, to match the leaderboard page (weekly was removed)
+    fetchLeaderboard({ scope: "alltime", limit: 3 })
       .then((r) => setEntries(r.entries))
       .catch(() => setFailed(true));
   }, []);
