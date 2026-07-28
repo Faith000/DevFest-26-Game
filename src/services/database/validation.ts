@@ -17,9 +17,13 @@ const isNum = (n: unknown): n is number => typeof n === "number" && Number.isFin
 
 /**
  * Server-side gatekeeper. Nothing the client claims is trusted:
- * the score is recomputed with the shared deterministic formula, every
+ * the score is recomputed with the shared deterministic formula and every
  * quantity is bounds-checked against what the simulation can physically
- * produce, and marginal-but-possible runs are flagged instead of shown.
+ * produce. Any run that survives those hard checks is published — there is
+ * no soft "flagged" tier. This is a promotional game, and hiding possible-
+ * but-unusual runs punished skilled players without meaningfully stopping a
+ * determined cheat (the game is client-side, so the physics bounds are the
+ * real defence).
  */
 export function validateRun(run: RunStats, submittedScore: number): ValidationOutcome {
   const reject = (reason: string): ValidationOutcome => ({ verdict: "rejected", reason });
@@ -82,27 +86,7 @@ export function validateRun(run: RunStats, submittedScore: number): ValidationOu
   const recomputed = computeScore(run).total;
   if (recomputed !== submittedScore) return reject("score does not match the deterministic formula");
 
-  /* ---- soft heuristics: only genuinely-impossible runs are flagged ----
-     The hard checks above already bound the run to real physics (distance to
-     maxMetres ≈ 41 m/s, and a ~37s floor on gameSeconds). These sit just
-     inside that wall to catch blatant outliers, NOT skilled play: arriving
-     fast and clean with lots of near-misses is exactly how a good player
-     scores high, so flagging that band silently hid legitimate high scores.
-     Thresholds are set close to the physical limits so only the near-
-     impossible is withheld. */
-  const reasons: string[] = [];
-  const avgSpeed = run.distance / gameSeconds; // metres/sec
-  if (avgSpeed > 36) reasons.push("sustained speed near theoretical maximum");
-  if (run.dodges > 40 && run.nearMisses / run.dodges > 0.97) {
-    reasons.push("near-miss ratio beyond human play");
-  }
-  if (run.collisions === 0 && run.result === "arrived" && gameSeconds < 40) {
-    reasons.push("flawless run at implausible pace");
-  }
-
-  return {
-    verdict: reasons.length > 0 ? "flagged" : "verified",
-    score: recomputed,
-    reasons,
-  };
+  // Survived every hard physics check → it's a run a real player could have
+  // produced, so publish it. No soft-heuristic flagging (see the note above).
+  return { verdict: "verified", score: recomputed, reasons: [] };
 }
