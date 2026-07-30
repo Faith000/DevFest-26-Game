@@ -167,7 +167,7 @@ export class HudScene extends Phaser.Scene {
     /* integrity pips (bottom-left) */
     const pipY = GAME_HEIGHT - 26;
     this.add
-      .text(12, pipY - 24, "VAN HEALTH", {
+      .text(12, pipY - 24, "VEHICLE HEALTH", {
         fontFamily: MONO,
         fontSize: `${8 * ui}px`,
         color: "#ffffff",
