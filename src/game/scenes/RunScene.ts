@@ -133,7 +133,6 @@ export class RunScene extends Phaser.Scene {
 
   private swipeStartX = 0;
   private swipeStartY = 0;
-  private swipeConsumedAt = 0;
   private swipeActive = false;
 
   /** dev/testing aid (?autopilot): follow the director's safe corridor */
@@ -289,15 +288,16 @@ export class RunScene extends Phaser.Scene {
       this.swipeStartX = p.x;
       this.swipeStartY = p.y;
       this.swipeActive = true;
-      this.swipeConsumedAt = p.x;
     });
     this.input.on("pointermove", (p: Phaser.Input.Pointer) => {
       if (!this.swipeActive) return;
-      const dx = p.x - this.swipeConsumedAt;
+      const dx = p.x - this.swipeStartX;
       const dyTotal = Math.abs(p.y - this.swipeStartY);
+      // one swipe = one lane: steer a single lane, then disarm until the
+      // next touch so a long/fast drag can't skip two lanes at once.
       if (Math.abs(dx) > 30 && Math.abs(dx) > dyTotal * 0.8) {
         this.steer(Math.sign(dx));
-        this.swipeConsumedAt = p.x;
+        this.swipeActive = false;
       }
     });
     this.input.on("pointerup", (p: Phaser.Input.Pointer) => {
