@@ -76,7 +76,8 @@ export function PlayFlow() {
         highContrast: settings.highContrast,
         largeUi: settings.largeUi,
       },
-      showTutorial: !loadJson(STORAGE_KEYS.tutorialDone, false),
+      // show the steer hint at the start of every run, not just the first
+      showTutorial: true,
     }),
     [settings],
   );
@@ -181,7 +182,6 @@ export function PlayFlow() {
 
   const handleFinished = useCallback(
     (p: RunFinishedPayload) => {
-      saveJson(STORAGE_KEYS.tutorialDone, true);
       const best = recordBest({
         score: p.breakdown.total,
         distance: p.stats.distance,

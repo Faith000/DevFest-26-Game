@@ -298,9 +298,9 @@ export class HudScene extends Phaser.Scene {
     const touch = this.sys.game.device.input.touch;
     const lines = touch
       ? "SWIPE OR TAP SIDES\nTO CHANGE LANES"
-      : "← → OR A/D TO STEER\nSPACE FOR POWER-UPS";
-    const bg = panel(this, 250, 64, 0xffe7a5);
-    bg.setPosition(-125, -32);
+      : "SWIPE, ← → OR A/D TO STEER\nSPACE FOR POWER-UPS";
+    const bg = panel(this, 290, 64, 0xffe7a5);
+    bg.setPosition(-145, -32);
     const label = this.add
       .text(0, 0, lines, {
         fontFamily: GROTESK,
